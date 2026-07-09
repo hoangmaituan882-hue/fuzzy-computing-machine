@@ -233,7 +233,7 @@ function GroupIdentityCarousel({
                   onChoose(group.id)
                 }
               }}
-              className="mr-7 flex h-[31rem] w-[22rem] shrink-0 flex-col justify-end overflow-hidden rounded-[2rem] border border-white/40 bg-cover bg-center p-7 text-left text-white shadow-none outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-wait disabled:opacity-60 max-sm:h-[27rem] max-sm:w-[18.5rem]"
+              className="mr-4 flex h-[22rem] w-[15.5rem] shrink-0 flex-col justify-end overflow-hidden rounded-[1.5rem] border border-white/40 bg-cover bg-center p-5 text-left text-white shadow-none outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-wait disabled:opacity-60 sm:mr-7 sm:h-[31rem] sm:w-[22rem] sm:rounded-[2rem] sm:p-7"
               style={{
                 backgroundImage: group.imageUrl
                   ? `linear-gradient(to top,rgba(2,6,23,.92),rgba(2,6,23,.28) 52%,rgba(2,6,23,.08)), ${group.pattern}, url(${group.imageUrl})`
@@ -241,13 +241,13 @@ function GroupIdentityCarousel({
               }}
             >
               <span className="mb-auto flex items-start justify-between">
-                <span className="rounded-full border border-white/35 bg-white/15 px-3 py-1 text-xs font-black tracking-[0.22em] text-white/80 backdrop-blur">
+                <span className="rounded-full border border-white/35 bg-white/15 px-2.5 py-1 text-[10px] font-black tracking-[0.18em] text-white/80 backdrop-blur sm:px-3 sm:text-xs sm:tracking-[0.22em]">
                   {group.tag}
                 </span>
-                <span className="h-12 w-12 rounded-full bg-white/20" />
+                <span className="h-9 w-9 rounded-full bg-white/20 sm:h-12 sm:w-12" />
               </span>
-              <span className={`text-base font-bold ${group.accentClass}`}>{group.subtitle}</span>
-              <span className="mt-2 block text-5xl font-black leading-none tracking-tight max-sm:text-4xl">{group.title}</span>
+              <span className={`text-sm font-bold sm:text-base ${group.accentClass}`}>{group.subtitle}</span>
+              <span className="mt-2 block text-4xl font-black leading-none tracking-tight sm:text-5xl">{group.title}</span>
             </button>
           ))}
         </div>
@@ -293,12 +293,12 @@ function CountdownClock() {
   }, [])
 
   return (
-    <div className="inline-flex flex-col sm:flex-row gap-3 items-center justify-center bg-white/60 dark:bg-slate-900/40 border border-slate-200/80 dark:border-slate-800/80 px-6 py-2.5 rounded-2xl shadow-sm backdrop-blur-md mt-4 mx-auto">
-      <span className="text-xs text-slate-500 dark:text-slate-400 font-sans font-semibold tracking-wide flex items-center gap-1.5">
+    <div className="mx-auto mt-4 flex w-full max-w-sm flex-col items-center justify-center gap-3 rounded-2xl border border-slate-200/80 bg-white/60 px-3 py-3 shadow-sm backdrop-blur-md dark:border-slate-800/80 dark:bg-slate-900/40 sm:inline-flex sm:w-auto sm:max-w-none sm:flex-row sm:px-6 sm:py-2.5">
+      <span className="flex items-center gap-1.5 text-center font-sans text-[11px] font-semibold tracking-wide text-slate-500 dark:text-slate-400 sm:text-xs">
         <span className="h-1.5 w-1.5 rounded-full bg-rose-500 animate-pulse" />
         距离周六晚 20:00 截止还剩：
       </span>
-      <div className="flex gap-2">
+      <div className="grid w-full grid-cols-4 gap-1.5 sm:flex sm:w-auto sm:gap-2">
         {[
           { label: '天', value: timeLeft.d },
           { label: '时', value: timeLeft.h },
@@ -308,7 +308,7 @@ function CountdownClock() {
           const str = String(item.value).padStart(2, '0')
           const chars = str.split('')
           return (
-            <div key={item.label} className="flex flex-col items-center bg-white/90 dark:bg-slate-950/80 border border-slate-200/60 dark:border-slate-900 px-3 py-1 rounded-xl shadow-xs min-w-[42px]">
+            <div key={item.label} className="flex min-w-0 flex-col items-center rounded-xl border border-slate-200/60 bg-white/90 px-2 py-1 shadow-xs dark:border-slate-900 dark:bg-slate-950/80 sm:min-w-[42px] sm:px-3">
               <span key={item.value} className="t-digit-group is-animating text-sm font-extrabold text-primary font-mono inline-flex">
                 {chars.map((ch, idx) => {
                   let stagger: string | undefined = undefined
@@ -604,15 +604,15 @@ function CampaignHome() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className={`t-tilt-card relative overflow-hidden rounded-2xl border bg-white/85 p-3 shadow-md transition-all duration-300 dark:bg-slate-900/70 ${
+            className={`t-tilt-card relative overflow-hidden rounded-2xl border bg-white/85 p-2.5 shadow-md transition-all duration-300 dark:bg-slate-900/70 sm:p-3 ${
               nom.hasVoted
                 ? 'border-primary/60 shadow-primary/10'
                 : 'border-amber-300/70 hover:border-amber-400 dark:border-amber-500/30 dark:hover:border-amber-400/60'
             }`}
           >
             <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-amber-200/60 to-transparent dark:from-amber-500/15" />
-            <div className="relative flex gap-3">
-              <div className="h-28 w-20 shrink-0 overflow-hidden rounded-xl border border-white/70 bg-slate-100 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+            <div className="relative flex gap-2.5 sm:gap-3">
+              <div className="h-24 w-16 shrink-0 overflow-hidden rounded-xl border border-white/70 bg-slate-100 shadow-sm dark:border-slate-800 dark:bg-slate-950 sm:h-28 sm:w-20">
                 {nom.cover ? (
                   <img src={nom.cover} className="h-full w-full object-cover" alt="" />
                 ) : (
@@ -630,18 +630,18 @@ function CampaignHome() {
                     {nom.votesCount} 票
                   </span>
                 </div>
-                <h4 className="line-clamp-2 text-sm font-black leading-snug text-slate-900 dark:text-white" title={nom.title}>
+                <h4 className="line-clamp-2 text-[13px] font-black leading-snug text-slate-900 dark:text-white sm:text-sm" title={nom.title}>
                   {nom.title}
                 </h4>
-                <div className="mt-1 text-[10px] font-semibold text-slate-500 dark:text-slate-400">
+                <div className="mt-1 text-[9.5px] font-semibold text-slate-500 dark:text-slate-400 sm:text-[10px]">
                   发起：<span className="text-slate-700 dark:text-slate-200">{nom.nominatedByName}</span>
                 </div>
-                <p className="mt-2 line-clamp-2 text-[11px] leading-relaxed text-slate-600 transition-all duration-300 group-hover/tile:line-clamp-none dark:text-slate-300">
+                <p className="mt-2 line-clamp-2 text-[10.5px] leading-relaxed text-slate-600 transition-all duration-300 group-hover/tile:line-clamp-none dark:text-slate-300 sm:text-[11px]">
                   {cleanReason}
                 </p>
               </div>
             </div>
-            <div className="relative mt-3 flex items-end justify-between gap-3">
+            <div className="relative mt-3 flex items-end justify-between gap-2 sm:gap-3">
               <div className="max-h-0 overflow-hidden text-[10px] leading-relaxed text-slate-500 opacity-0 transition-all duration-300 group-hover/tile:max-h-24 group-hover/tile:opacity-100 dark:text-slate-400">
                 悬停展开后显示完整推荐理由，方便快速判断本群第一为什么领先。
               </div>
@@ -651,7 +651,7 @@ function CampaignHome() {
                 type="button"
                 disabled={isPending}
                 onClick={() => handleVote(nom.id, nom.hasVoted)}
-                className={`inline-flex h-9 shrink-0 items-center gap-1.5 rounded-xl border px-3 text-xs font-black transition-all duration-300 ${
+                className={`inline-flex h-8 shrink-0 items-center gap-1.5 rounded-xl border px-2.5 text-[11px] font-black transition-all duration-300 sm:h-9 sm:px-3 sm:text-xs ${
                   nom.hasVoted
                     ? 'border-primary bg-primary/15 text-primary'
                     : 'border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300'
@@ -679,14 +679,14 @@ function CampaignHome() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
-          className={`t-tilt-card flex gap-3 p-3 items-center overflow-hidden bg-white/70 dark:bg-slate-900/40 border rounded-xl transition-all duration-300 shadow-sm ${
+          className={`t-tilt-card flex items-center gap-2.5 overflow-hidden rounded-xl border bg-white/70 p-2.5 shadow-sm transition-all duration-300 dark:bg-slate-900/40 sm:gap-3 sm:p-3 ${
             nom.hasVoted
               ? 'border-primary/50 bg-primary/5 dark:bg-primary/5'
               : 'border-slate-200 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700/80'
           }`}
         >
           {/* Cover */}
-          <div className="w-11 h-14 bg-slate-100 dark:bg-slate-950 rounded-lg overflow-hidden shrink-0 border border-slate-200 dark:border-slate-800/60 flex items-center justify-center relative">
+          <div className="relative flex h-12 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-200 bg-slate-100 dark:border-slate-800/60 dark:bg-slate-950 sm:h-14 sm:w-11">
             {nom.cover ? (
               <img src={nom.cover} className="w-full h-full object-cover" alt="" />
             ) : (
@@ -713,7 +713,7 @@ function CampaignHome() {
           </div>
 
           {/* Action / Vote count */}
-          <div className="flex flex-col items-center gap-1 shrink-0 pl-2.5 border-l border-slate-200 dark:border-slate-800/80">
+          <div className="flex shrink-0 flex-col items-center gap-1 border-l border-slate-200 pl-2 dark:border-slate-800/80 sm:pl-2.5">
             <motion.button
               whileHover={{ scale: 1.15 }}
               whileTap={{ scale: 0.85 }}
@@ -760,15 +760,15 @@ function CampaignHome() {
 
       {/* Global Navigation Header */}
       <header className="sticky top-0 z-40 w-full border-b border-slate-200 dark:border-slate-800 bg-white/75 dark:bg-slate-950/75 backdrop-blur-md">
-        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Gamepad2 className="text-primary h-6 w-6 animate-pulse" />
-            <span className="font-extrabold text-lg tracking-tight bg-gradient-to-r from-primary to-indigo-500 dark:to-indigo-400 bg-clip-text text-transparent">
+        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-2 px-3 sm:h-16 sm:px-4">
+          <div className="flex min-w-0 items-center gap-2">
+            <Gamepad2 className="h-5 w-5 shrink-0 animate-pulse text-primary sm:h-6 sm:w-6" />
+            <span className="truncate bg-gradient-to-r from-primary to-indigo-500 bg-clip-text text-sm font-extrabold tracking-tight text-transparent dark:to-indigo-400 sm:text-lg">
               泛式 Galgame 竞猜
             </span>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
             {user?.role === 'admin' && (
               <Button
                 asChild
@@ -799,7 +799,7 @@ function CampaignHome() {
                 切换
               </Button>
             )}
-            <div className="h-4 w-px bg-slate-200 dark:bg-slate-800 mx-1" />
+            <div className="mx-1 hidden h-4 w-px bg-slate-200 dark:bg-slate-800 sm:block" />
 
             <span className="hidden text-xs font-semibold text-slate-500 dark:text-slate-400 sm:inline">
               匿名参与
@@ -809,24 +809,24 @@ function CampaignHome() {
       </header>
 
       {/* Main Campaign Layout */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-8 z-10 space-y-8">
+      <main className="z-10 mx-auto w-full max-w-6xl flex-1 space-y-6 px-3 py-5 sm:px-4 sm:py-8 md:space-y-8">
         {/* Campaign Hero Banner */}
-        <section className="text-center py-6 space-y-3.5 max-w-2xl mx-auto">
+        <section className="mx-auto max-w-2xl space-y-3.5 py-3 text-center sm:py-6">
           <Badge className="bg-primary/10 text-primary border border-primary/20 font-mono py-1 px-3 text-xs tracking-wider rounded-full">
             🏆 泛式三个舰长群专属竞猜
           </Badge>
-          <h1 className="text-3xl md:text-5xl font-black tracking-tight leading-tight text-slate-900 dark:text-transparent dark:bg-gradient-to-b dark:from-white dark:to-slate-300 dark:bg-clip-text">
+          <h1 className="text-2xl font-black leading-tight tracking-tight text-slate-900 dark:bg-gradient-to-b dark:from-white dark:to-slate-300 dark:bg-clip-text dark:text-transparent sm:text-3xl md:text-5xl">
             最最最喜欢你的100个饭团
           </h1>
-          <p className="text-xs md:text-sm text-slate-650 dark:text-slate-400 leading-relaxed">
+          <p className="mx-auto max-w-[34rem] text-[12px] leading-relaxed text-slate-650 dark:text-slate-400 sm:text-xs md:text-sm">
             你猜中泛式的心思了吗？每个人可以提名最多一款游戏，然后最多投一票进行猜想（数据实时更新，可退票重投）。快来贡献你的神之预测！
           </p>
           <CountdownClock />
-          <div className="pt-2 flex justify-center gap-4">
+          <div className="flex justify-center gap-4 pt-2">
             <Button
               onClick={() => setOpen(true)}
               size="lg"
-              className="gap-2 bg-primary hover:bg-primary/95 text-white rounded-xl shadow-lg shadow-primary/20 text-sm font-bold h-11"
+              className="h-11 w-full max-w-sm gap-2 rounded-xl bg-primary text-sm font-bold text-white shadow-lg shadow-primary/20 hover:bg-primary/95 sm:w-auto"
             >
               <Plus size={16} />
               <span>发起游戏猜想</span>
@@ -836,9 +836,9 @@ function CampaignHome() {
 
         {/* Three Columns Results */}
         <section className="space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
-            <h2 className="text-base font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-              <Trophy className="text-amber-500 h-5 w-5" />
+          <div className="flex flex-col items-start justify-between gap-2 border-b border-slate-200 pb-3 dark:border-slate-800 sm:flex-row sm:items-center">
+            <h2 className="flex items-center gap-2 text-sm font-bold text-slate-800 dark:text-slate-100 sm:text-base">
+              <Trophy className="h-5 w-5 shrink-0 text-amber-500" />
               <span>三个舰长群提名竞猜预测榜</span>
             </h2>
             <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">
@@ -846,7 +846,7 @@ function CampaignHome() {
             </span>
           </div>
 
-          <div className="relative max-w-md">
+          <div className="relative w-full sm:max-w-md">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <Input
               value={nominationQuery}
@@ -856,9 +856,9 @@ function CampaignHome() {
             />
           </div>
 
-          <div className="grid gap-6 md:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-3 md:gap-6">
             {/* Column 1: 舰长一群 */}
-            <div className="space-y-4 bg-slate-100/50 dark:bg-slate-900/20 p-4 rounded-2xl border border-slate-200 dark:border-slate-800/60 flex flex-col h-[650px]">
+            <div className="flex flex-col space-y-3 rounded-2xl border border-slate-200 bg-slate-100/50 p-3 dark:border-slate-800/60 dark:bg-slate-900/20 md:h-[650px] md:space-y-4 md:p-4">
               <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2.5">
                 <h3 className="font-extrabold text-slate-700 dark:text-slate-200 flex items-center gap-2 text-xs">
                   <span className="h-2 w-2 rounded-full bg-primary" />
@@ -878,14 +878,14 @@ function CampaignHome() {
                   <div className="mt-0.5 font-mono text-sm font-black text-primary">{group1Stats.votesCount}</div>
                 </div>
               </div>
-              <div className="flex-1 overflow-y-auto space-y-3 pr-1 scrollbar-thin">
+              <div className="space-y-3 md:flex-1 md:overflow-y-auto md:pr-1 md:scrollbar-thin">
                 {group1Nominations.map((nom, idx) => renderCompactCard(nom, idx))}
                 {group1Nominations.length === 0 && renderEmptyState('一群')}
               </div>
             </div>
 
             {/* Column 2: 舰长二群 */}
-            <div className="space-y-4 bg-slate-100/50 dark:bg-slate-900/20 p-4 rounded-2xl border border-slate-200 dark:border-slate-800/60 flex flex-col h-[650px]">
+            <div className="flex flex-col space-y-3 rounded-2xl border border-slate-200 bg-slate-100/50 p-3 dark:border-slate-800/60 dark:bg-slate-900/20 md:h-[650px] md:space-y-4 md:p-4">
               <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2.5">
                 <h3 className="font-extrabold text-slate-700 dark:text-slate-200 flex items-center gap-2 text-xs">
                   <span className="h-2 w-2 rounded-full bg-indigo-500" />
@@ -905,14 +905,14 @@ function CampaignHome() {
                   <div className="mt-0.5 font-mono text-sm font-black text-indigo-500">{group2Stats.votesCount}</div>
                 </div>
               </div>
-              <div className="flex-1 overflow-y-auto space-y-3 pr-1 scrollbar-thin">
+              <div className="space-y-3 md:flex-1 md:overflow-y-auto md:pr-1 md:scrollbar-thin">
                 {group2Nominations.map((nom, idx) => renderCompactCard(nom, idx))}
                 {group2Nominations.length === 0 && renderEmptyState('二群')}
               </div>
             </div>
 
             {/* Column 3: 舰长三群 */}
-            <div className="space-y-4 bg-slate-100/50 dark:bg-slate-900/20 p-4 rounded-2xl border border-slate-200 dark:border-slate-800/60 flex flex-col h-[650px]">
+            <div className="flex flex-col space-y-3 rounded-2xl border border-slate-200 bg-slate-100/50 p-3 dark:border-slate-800/60 dark:bg-slate-900/20 md:h-[650px] md:space-y-4 md:p-4">
               <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2.5">
                 <h3 className="font-extrabold text-slate-700 dark:text-slate-200 flex items-center gap-2 text-xs">
                   <span className="h-2 w-2 rounded-full bg-emerald-500" />
@@ -932,7 +932,7 @@ function CampaignHome() {
                   <div className="mt-0.5 font-mono text-sm font-black text-emerald-500">{group3Stats.votesCount}</div>
                 </div>
               </div>
-              <div className="flex-1 overflow-y-auto space-y-3 pr-1 scrollbar-thin">
+              <div className="space-y-3 md:flex-1 md:overflow-y-auto md:pr-1 md:scrollbar-thin">
                 {group3Nominations.map((nom, idx) => renderCompactCard(nom, idx))}
                 {group3Nominations.length === 0 && renderEmptyState('三群')}
               </div>
@@ -947,10 +947,10 @@ function CampaignHome() {
           if (activeGroup) setGroupSwitcherOpen(open)
         }}
       >
-        <DialogContent className="max-h-[92vh] w-[min(96vw,1280px)] max-w-none overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-7 text-slate-900 shadow-2xl dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
-          <DialogHeader className="mx-auto max-w-3xl text-center">
-            <DialogTitle className="text-3xl font-black tracking-tight text-slate-900 dark:text-slate-100">选择你的群友身份</DialogTitle>
-            <DialogDescription className="text-slate-500 dark:text-slate-400">
+        <DialogContent className="max-h-[92vh] w-[calc(100vw-1rem)] max-w-none overflow-y-auto overflow-x-hidden rounded-2xl border border-slate-200 bg-white p-3 text-slate-900 shadow-2xl dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100 sm:w-[min(96vw,1280px)] sm:rounded-[2rem] sm:p-7">
+          <DialogHeader className="mx-auto max-w-3xl px-8 text-center sm:px-0">
+            <DialogTitle className="text-xl font-black tracking-tight text-slate-900 dark:text-slate-100 sm:text-3xl">选择你的群友身份</DialogTitle>
+            <DialogDescription className="text-xs text-slate-500 dark:text-slate-400 sm:text-[14.5px]">
               {activeGroup
                 ? '你还没有提名或投票，可以切换一次群身份。'
                 : '选择后将只显示并参与对应群的提名与投票。'}
@@ -962,15 +962,15 @@ function CampaignHome() {
 
       {/* Campaign Nomination Dialog */}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100">
+        <DialogContent className="max-h-[92vh] w-[calc(100vw-1rem)] max-w-md overflow-y-auto border border-slate-200 bg-white p-4 text-slate-900 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100 sm:p-6">
           <DialogHeader>
-            <DialogTitle className="text-slate-900 dark:text-slate-100">提名新的 Galgame 游戏猜想</DialogTitle>
-            <DialogDescription className="text-slate-500 dark:text-slate-400">
+            <DialogTitle className="text-lg text-slate-900 dark:text-slate-100 sm:text-xl">提名新的 Galgame 游戏猜想</DialogTitle>
+            <DialogDescription className="text-xs text-slate-500 dark:text-slate-400 sm:text-[14.5px]">
               输入你预测的泛式最近最喜欢的 Galgame。每个舰长最多只能提名一款游戏！
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleSubmit} className="space-y-4 pt-2">
+          <form onSubmit={handleSubmit} className="space-y-3 pt-1 sm:space-y-4 sm:pt-2">
             {errorMsg && (
               <div className="flex items-center gap-2 text-xs font-semibold text-rose-500 dark:text-rose-400 bg-rose-500/10 border border-rose-500/20 p-3 rounded-lg">
                 <AlertCircle size={14} />
@@ -980,8 +980,8 @@ function CampaignHome() {
 
             {/* Bangumi 导入工具 */}
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 p-3 space-y-2.5">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-primary flex items-center gap-1.5">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <span className="flex items-center gap-1.5 text-xs font-bold text-primary">
                   🔍 Bangumi (番组计划) 快捷搜索
                 </span>
                 <div className="flex items-center gap-1">
@@ -1015,7 +1015,7 @@ function CampaignHome() {
                   placeholder={searchType === 'game' ? "输入 Galgame，如: 白色相簿" : "输入动漫，如: 芙莉莲"}
                   value={searchKeyword}
                   onChange={(e) => setSearchKeyword(e.target.value)}
-                  className="h-8 text-xs bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                  className="h-9 min-w-0 bg-white text-xs text-slate-900 placeholder:text-slate-400 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500 sm:h-8"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
@@ -1028,7 +1028,7 @@ function CampaignHome() {
                   onClick={handleSearch}
                   disabled={isSearching}
                   size="sm"
-                  className="h-8 text-xs shrink-0 bg-primary text-white"
+                  className="h-9 shrink-0 bg-primary text-xs text-white sm:h-8"
                 >
                   {isSearching ? '搜索中...' : '搜索'}
                 </Button>
@@ -1135,7 +1135,7 @@ function CampaignHome() {
               />
             </div>
 
-            <div className="flex justify-end gap-3 pt-3">
+            <div className="grid grid-cols-2 gap-2 pt-2 sm:flex sm:justify-end sm:gap-3 sm:pt-3">
               <Button
                 type="button"
                 variant="outline"
