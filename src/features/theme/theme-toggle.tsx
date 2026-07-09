@@ -6,8 +6,8 @@ import { useResolvedTheme } from '@/features/theme/use-resolved-theme'
 export function ThemeToggle({ theme }: { theme: 'light' | 'dark' }) {
   const router = useRouter()
   const { t } = useTranslation()
-  // trust the DOM, not the loader: a cookie-less light-OS visitor is on light
-  // even though SSR said dark (see the boot script in __root)
+  // Trust the DOM, not only the loader: clicking the toggle applies the class
+  // immediately, then router.invalidate() refreshes server data/cookie state.
   const resolved = useResolvedTheme(theme)
 
   function toggle() {

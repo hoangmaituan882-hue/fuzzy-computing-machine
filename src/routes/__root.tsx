@@ -44,12 +44,6 @@ export const Route = createRootRoute({
   component: RootComponent,
 })
 
-/* Pre-paint theme resolution for cookie-less visitors: SSR defaults to light
- * (brand), this flips to dark when the OS prefers it — before first paint, so
- * there is no flash. It deliberately does NOT write a cookie: visitors keep
- * following their system until they click the toggle (which does write one). */
-const THEME_BOOT_SCRIPT = `(function(){try{if(!/(?:^|;\\s*)theme=/.test(document.cookie)&&matchMedia('(prefers-color-scheme: dark)').matches){document.documentElement.classList.replace('light','dark')}}catch(e){}})()`
-
 function RootComponent() {
   const { theme, analyticsToken } = Route.useLoaderData()
   const params = useParams({ strict: false }) as { locale?: string }
@@ -63,7 +57,6 @@ function RootComponent() {
   return (
     <html lang={lang} className={theme} suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
         <HeadContent />
       </head>
       <body>

@@ -293,7 +293,7 @@ function CountdownClock() {
   }, [])
 
   return (
-    <div className="mx-auto mt-4 flex w-full max-w-sm flex-col items-center justify-center gap-3 rounded-2xl border border-slate-200/80 bg-white/60 px-3 py-3 shadow-sm backdrop-blur-md dark:border-slate-800/80 dark:bg-slate-900/40 sm:inline-flex sm:w-auto sm:max-w-none sm:flex-row sm:px-6 sm:py-2.5">
+    <div className="mx-auto mt-4 flex w-full max-w-sm flex-col items-center justify-center gap-3 rounded-2xl border border-orange-100 bg-white/85 px-3 py-3 shadow-[0_14px_40px_rgba(234,88,12,0.08)] backdrop-blur-md dark:border-slate-800/80 dark:bg-slate-900/40 sm:inline-flex sm:w-auto sm:max-w-none sm:flex-row sm:px-6 sm:py-2.5">
       <span className="flex items-center gap-1.5 text-center font-sans text-[11px] font-semibold tracking-wide text-slate-500 dark:text-slate-400 sm:text-xs">
         <span className="h-1.5 w-1.5 rounded-full bg-rose-500 animate-pulse" />
         距离周六晚 20:00 截止还剩：
@@ -308,7 +308,7 @@ function CountdownClock() {
           const str = String(item.value).padStart(2, '0')
           const chars = str.split('')
           return (
-            <div key={item.label} className="flex min-w-0 flex-col items-center rounded-xl border border-slate-200/60 bg-white/90 px-2 py-1 shadow-xs dark:border-slate-900 dark:bg-slate-950/80 sm:min-w-[42px] sm:px-3">
+            <div key={item.label} className="flex min-w-0 flex-col items-center rounded-xl border border-orange-100 bg-orange-50/70 px-2 py-1 shadow-xs dark:border-slate-900 dark:bg-slate-950/80 sm:min-w-[42px] sm:px-3">
               <span key={item.value} className="t-digit-group is-animating text-sm font-extrabold text-primary font-mono inline-flex">
                 {chars.map((ch, idx) => {
                   let stagger: string | undefined = undefined
@@ -604,7 +604,7 @@ function CampaignHome() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className={`t-tilt-card relative overflow-hidden rounded-2xl border bg-white/85 p-2.5 shadow-md transition-all duration-300 dark:bg-slate-900/70 sm:p-3 ${
+            className={`t-tilt-card relative overflow-hidden rounded-2xl border bg-white/95 p-2.5 shadow-[0_14px_34px_rgba(146,64,14,0.10)] transition-all duration-300 dark:bg-slate-900/70 dark:shadow-none sm:p-3 ${
               nom.hasVoted
                 ? 'border-primary/60 shadow-primary/10'
                 : 'border-amber-300/70 hover:border-amber-400 dark:border-amber-500/30 dark:hover:border-amber-400/60'
@@ -612,7 +612,7 @@ function CampaignHome() {
           >
             <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-amber-200/60 to-transparent dark:from-amber-500/15" />
             <div className="relative flex gap-2.5 sm:gap-3">
-              <div className="h-24 w-16 shrink-0 overflow-hidden rounded-xl border border-white/70 bg-slate-100 shadow-sm dark:border-slate-800 dark:bg-slate-950 sm:h-28 sm:w-20">
+              <div className="h-24 w-16 shrink-0 overflow-hidden rounded-xl border border-orange-100 bg-orange-50 shadow-sm dark:border-slate-800 dark:bg-slate-950 sm:h-28 sm:w-20">
                 {nom.cover ? (
                   <img src={nom.cover} className="h-full w-full object-cover" alt="" />
                 ) : (
@@ -679,14 +679,14 @@ function CampaignHome() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
-          className={`t-tilt-card flex items-center gap-2.5 overflow-hidden rounded-xl border bg-white/70 p-2.5 shadow-sm transition-all duration-300 dark:bg-slate-900/40 sm:gap-3 sm:p-3 ${
+          className={`t-tilt-card flex items-center gap-2.5 overflow-hidden rounded-xl border bg-white/90 p-2.5 shadow-[0_10px_24px_rgba(15,23,42,0.04)] transition-all duration-300 dark:bg-slate-900/40 dark:shadow-none sm:gap-3 sm:p-3 ${
             nom.hasVoted
               ? 'border-primary/50 bg-primary/5 dark:bg-primary/5'
               : 'border-slate-200 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700/80'
           }`}
         >
           {/* Cover */}
-          <div className="relative flex h-12 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-200 bg-slate-100 dark:border-slate-800/60 dark:bg-slate-950 sm:h-14 sm:w-11">
+          <div className="relative flex h-12 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-orange-100 bg-orange-50 dark:border-slate-800/60 dark:bg-slate-950 sm:h-14 sm:w-11">
             {nom.cover ? (
               <img src={nom.cover} className="w-full h-full object-cover" alt="" />
             ) : (
@@ -723,7 +723,7 @@ function CampaignHome() {
               className={`inline-flex h-7 w-7 items-center justify-center rounded-lg border transition-all duration-300 ${
                 nom.hasVoted
                   ? 'bg-primary/20 border-primary text-primary shadow-md shadow-primary/10'
-                  : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:border-slate-300 dark:hover:border-slate-700'
+                  : 'border-orange-100 bg-orange-50 text-slate-500 hover:border-orange-200 hover:text-slate-800 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400 dark:hover:border-slate-700 dark:hover:text-slate-200'
               }`}
               title={nom.hasVoted ? '取消投票' : '投它一票'}
             >
@@ -743,27 +743,27 @@ function CampaignHome() {
 
   function renderEmptyState(groupName: string) {
     return (
-      <div className="rounded-xl border border-dashed border-slate-200 dark:border-slate-850 p-6 text-center bg-slate-50/50 dark:bg-slate-900/10">
-        <BookOpen size={24} className="mx-auto text-slate-400 dark:text-slate-700 mb-2" />
-        <h4 className="text-xs font-bold text-slate-400 dark:text-slate-500">{groupName}暂无猜想</h4>
-        <p className="text-[10px] text-slate-500 dark:text-slate-650 mt-1">点击上方按钮推荐你猜测的游戏！</p>
+      <div className="rounded-xl border border-dashed border-orange-200 bg-white/70 p-6 text-center dark:border-slate-850 dark:bg-slate-900/10">
+        <BookOpen size={24} className="mx-auto mb-2 text-orange-300 dark:text-slate-700" />
+        <h4 className="text-xs font-bold text-slate-500 dark:text-slate-500">{groupName}暂无猜想</h4>
+        <p className="mt-1 text-[10px] text-slate-500 dark:text-slate-650">点击上方按钮推荐你猜测的游戏！</p>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col antialiased selection:bg-primary selection:text-white">
+    <div className="relative isolate flex min-h-screen flex-col overflow-x-hidden bg-[#fffaf3] text-slate-900 antialiased selection:bg-primary selection:text-white dark:bg-slate-950 dark:text-slate-100">
       {/* Mesh Background */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-100/40 dark:from-indigo-900/40 via-slate-50 dark:via-slate-950 to-slate-50 dark:to-slate-950 pointer-events-none z-0" />
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-orange-100/80 via-white to-sky-50/80 pointer-events-none dark:from-indigo-900/40 dark:via-slate-950 dark:to-slate-950" />
       {/* Radial Background Glow Circle */}
-      <div className="absolute top-[30%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] bg-primary/10 dark:bg-primary/5 rounded-full blur-[120px] pointer-events-none z-0" />
+      <div className="absolute left-1/2 top-[24%] -z-10 h-[260px] w-[260px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/12 blur-[90px] pointer-events-none dark:bg-primary/5 sm:h-[350px] sm:w-[350px] sm:blur-[120px]" />
 
       {/* Global Navigation Header */}
-      <header className="sticky top-0 z-40 w-full border-b border-slate-200 dark:border-slate-800 bg-white/75 dark:bg-slate-950/75 backdrop-blur-md">
+      <header className="sticky top-0 z-40 w-full border-b border-orange-100/80 bg-white/90 shadow-[0_8px_30px_rgba(15,23,42,0.04)] backdrop-blur-md dark:border-slate-800 dark:bg-slate-950/75 dark:shadow-none">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-2 px-3 sm:h-16 sm:px-4">
           <div className="flex min-w-0 items-center gap-2">
             <Gamepad2 className="h-5 w-5 shrink-0 animate-pulse text-primary sm:h-6 sm:w-6" />
-            <span className="truncate bg-gradient-to-r from-primary to-indigo-500 bg-clip-text text-sm font-extrabold tracking-tight text-transparent dark:to-indigo-400 sm:text-lg">
+            <span className="truncate bg-gradient-to-r from-primary via-orange-500 to-sky-500 bg-clip-text text-sm font-extrabold tracking-tight text-transparent dark:to-indigo-400 sm:text-lg">
               泛式 Galgame 竞猜
             </span>
           </div>
@@ -812,13 +812,13 @@ function CampaignHome() {
       <main className="z-10 mx-auto w-full max-w-6xl flex-1 space-y-6 px-3 py-5 sm:px-4 sm:py-8 md:space-y-8">
         {/* Campaign Hero Banner */}
         <section className="mx-auto max-w-2xl space-y-3.5 py-3 text-center sm:py-6">
-          <Badge className="bg-primary/10 text-primary border border-primary/20 font-mono py-1 px-3 text-xs tracking-wider rounded-full">
+          <Badge className="border border-orange-200 bg-white/80 px-3 py-1 font-mono text-xs tracking-wider text-primary shadow-[0_10px_28px_rgba(234,88,12,0.08)] rounded-full dark:bg-primary/10 dark:border-primary/20">
             🏆 泛式三个舰长群专属竞猜
           </Badge>
-          <h1 className="text-2xl font-black leading-tight tracking-tight text-slate-900 dark:bg-gradient-to-b dark:from-white dark:to-slate-300 dark:bg-clip-text dark:text-transparent sm:text-3xl md:text-5xl">
+          <h1 className="text-2xl font-black leading-tight tracking-tight text-slate-950 dark:bg-gradient-to-b dark:from-white dark:to-slate-300 dark:bg-clip-text dark:text-transparent sm:text-3xl md:text-5xl">
             最最最喜欢你的100个饭团
           </h1>
-          <p className="mx-auto max-w-[34rem] text-[12px] leading-relaxed text-slate-650 dark:text-slate-400 sm:text-xs md:text-sm">
+          <p className="mx-auto max-w-[34rem] text-[12px] leading-relaxed text-slate-600 dark:text-slate-400 sm:text-xs md:text-sm">
             你猜中泛式的心思了吗？每个人可以提名最多一款游戏，然后最多投一票进行猜想（数据实时更新，可退票重投）。快来贡献你的神之预测！
           </p>
           <CountdownClock />
@@ -826,7 +826,7 @@ function CampaignHome() {
             <Button
               onClick={() => setOpen(true)}
               size="lg"
-              className="h-11 w-full max-w-sm gap-2 rounded-xl bg-primary text-sm font-bold text-white shadow-lg shadow-primary/20 hover:bg-primary/95 sm:w-auto"
+              className="h-11 w-full max-w-sm gap-2 rounded-xl bg-primary text-sm font-bold text-white shadow-[0_16px_40px_rgba(226,83,28,0.26)] hover:bg-primary/95 sm:w-auto"
             >
               <Plus size={16} />
               <span>发起游戏猜想</span>
@@ -852,28 +852,28 @@ function CampaignHome() {
               value={nominationQuery}
               onChange={(e) => setNominationQuery(e.target.value)}
               placeholder="搜索已提名的 Galgame、昵称或理由"
-              className="h-10 rounded-xl border-slate-200 bg-white pl-9 text-sm dark:border-slate-800 dark:bg-slate-950"
+              className="h-11 rounded-xl border-orange-100 bg-white/90 pl-9 text-sm shadow-[0_10px_30px_rgba(15,23,42,0.04)] dark:border-slate-800 dark:bg-slate-950 sm:h-10"
             />
           </div>
 
           <div className="grid gap-4 md:grid-cols-3 md:gap-6">
             {/* Column 1: 舰长一群 */}
-            <div className="flex flex-col space-y-3 rounded-2xl border border-slate-200 bg-slate-100/50 p-3 dark:border-slate-800/60 dark:bg-slate-900/20 md:h-[650px] md:space-y-4 md:p-4">
+            <div className="flex flex-col space-y-3 rounded-2xl border border-orange-100 bg-white/75 p-3 shadow-[0_18px_50px_rgba(15,23,42,0.06)] backdrop-blur dark:border-slate-800/60 dark:bg-slate-900/20 dark:shadow-none md:h-[650px] md:space-y-4 md:p-4">
               <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2.5">
                 <h3 className="font-extrabold text-slate-700 dark:text-slate-200 flex items-center gap-2 text-xs">
                   <span className="h-2 w-2 rounded-full bg-primary" />
                   一群预测榜 (1群)
                 </h3>
-                <Badge className="text-[9px] font-mono py-0 px-1.5 bg-slate-200 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-600 dark:text-slate-400">
+                <Badge className="border border-orange-100 bg-orange-50 px-1.5 py-0 font-mono text-[9px] text-orange-700 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400">
                   {group1Nominations.length} 款
                 </Badge>
               </div>
               <div className="grid grid-cols-2 gap-2">
-                <div className="rounded-xl border border-slate-200 bg-white/70 px-3 py-2 text-center dark:border-slate-800 dark:bg-slate-950/50">
+                <div className="rounded-xl border border-orange-100 bg-orange-50/70 px-3 py-2 text-center dark:border-slate-800 dark:bg-slate-950/50">
                   <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400">总提名</div>
                   <div className="mt-0.5 font-mono text-sm font-black text-slate-900 dark:text-slate-100">{group1Stats.nominationsCount}</div>
                 </div>
-                <div className="rounded-xl border border-slate-200 bg-white/70 px-3 py-2 text-center dark:border-slate-800 dark:bg-slate-950/50">
+                <div className="rounded-xl border border-orange-100 bg-white px-3 py-2 text-center dark:border-slate-800 dark:bg-slate-950/50">
                   <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400">总投票</div>
                   <div className="mt-0.5 font-mono text-sm font-black text-primary">{group1Stats.votesCount}</div>
                 </div>
@@ -885,22 +885,22 @@ function CampaignHome() {
             </div>
 
             {/* Column 2: 舰长二群 */}
-            <div className="flex flex-col space-y-3 rounded-2xl border border-slate-200 bg-slate-100/50 p-3 dark:border-slate-800/60 dark:bg-slate-900/20 md:h-[650px] md:space-y-4 md:p-4">
+            <div className="flex flex-col space-y-3 rounded-2xl border border-indigo-100 bg-white/75 p-3 shadow-[0_18px_50px_rgba(15,23,42,0.06)] backdrop-blur dark:border-slate-800/60 dark:bg-slate-900/20 dark:shadow-none md:h-[650px] md:space-y-4 md:p-4">
               <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2.5">
                 <h3 className="font-extrabold text-slate-700 dark:text-slate-200 flex items-center gap-2 text-xs">
                   <span className="h-2 w-2 rounded-full bg-indigo-500" />
                   二群预测榜 (2群)
                 </h3>
-                <Badge className="text-[9px] font-mono py-0 px-1.5 bg-slate-200 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-600 dark:text-slate-400">
+                <Badge className="border border-indigo-100 bg-indigo-50 px-1.5 py-0 font-mono text-[9px] text-indigo-700 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400">
                   {group2Nominations.length} 款
                 </Badge>
               </div>
               <div className="grid grid-cols-2 gap-2">
-                <div className="rounded-xl border border-slate-200 bg-white/70 px-3 py-2 text-center dark:border-slate-800 dark:bg-slate-950/50">
+                <div className="rounded-xl border border-indigo-100 bg-indigo-50/70 px-3 py-2 text-center dark:border-slate-800 dark:bg-slate-950/50">
                   <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400">总提名</div>
                   <div className="mt-0.5 font-mono text-sm font-black text-slate-900 dark:text-slate-100">{group2Stats.nominationsCount}</div>
                 </div>
-                <div className="rounded-xl border border-slate-200 bg-white/70 px-3 py-2 text-center dark:border-slate-800 dark:bg-slate-950/50">
+                <div className="rounded-xl border border-indigo-100 bg-white px-3 py-2 text-center dark:border-slate-800 dark:bg-slate-950/50">
                   <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400">总投票</div>
                   <div className="mt-0.5 font-mono text-sm font-black text-indigo-500">{group2Stats.votesCount}</div>
                 </div>
@@ -912,22 +912,22 @@ function CampaignHome() {
             </div>
 
             {/* Column 3: 舰长三群 */}
-            <div className="flex flex-col space-y-3 rounded-2xl border border-slate-200 bg-slate-100/50 p-3 dark:border-slate-800/60 dark:bg-slate-900/20 md:h-[650px] md:space-y-4 md:p-4">
+            <div className="flex flex-col space-y-3 rounded-2xl border border-emerald-100 bg-white/75 p-3 shadow-[0_18px_50px_rgba(15,23,42,0.06)] backdrop-blur dark:border-slate-800/60 dark:bg-slate-900/20 dark:shadow-none md:h-[650px] md:space-y-4 md:p-4">
               <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2.5">
                 <h3 className="font-extrabold text-slate-700 dark:text-slate-200 flex items-center gap-2 text-xs">
                   <span className="h-2 w-2 rounded-full bg-emerald-500" />
                   三群预测榜 (3群)
                 </h3>
-                <Badge className="text-[9px] font-mono py-0 px-1.5 bg-slate-200 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-600 dark:text-slate-400">
+                <Badge className="border border-emerald-100 bg-emerald-50 px-1.5 py-0 font-mono text-[9px] text-emerald-700 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400">
                   {group3Nominations.length} 款
                 </Badge>
               </div>
               <div className="grid grid-cols-2 gap-2">
-                <div className="rounded-xl border border-slate-200 bg-white/70 px-3 py-2 text-center dark:border-slate-800 dark:bg-slate-950/50">
+                <div className="rounded-xl border border-emerald-100 bg-emerald-50/70 px-3 py-2 text-center dark:border-slate-800 dark:bg-slate-950/50">
                   <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400">总提名</div>
                   <div className="mt-0.5 font-mono text-sm font-black text-slate-900 dark:text-slate-100">{group3Stats.nominationsCount}</div>
                 </div>
-                <div className="rounded-xl border border-slate-200 bg-white/70 px-3 py-2 text-center dark:border-slate-800 dark:bg-slate-950/50">
+                <div className="rounded-xl border border-emerald-100 bg-white px-3 py-2 text-center dark:border-slate-800 dark:bg-slate-950/50">
                   <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400">总投票</div>
                   <div className="mt-0.5 font-mono text-sm font-black text-emerald-500">{group3Stats.votesCount}</div>
                 </div>
@@ -947,7 +947,7 @@ function CampaignHome() {
           if (activeGroup) setGroupSwitcherOpen(open)
         }}
       >
-        <DialogContent className="max-h-[92vh] w-[calc(100vw-1rem)] max-w-none overflow-y-auto overflow-x-hidden rounded-2xl border border-slate-200 bg-white p-3 text-slate-900 shadow-2xl dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100 sm:w-[min(96vw,1280px)] sm:rounded-[2rem] sm:p-7">
+        <DialogContent className="max-h-[92vh] w-[calc(100vw-1rem)] max-w-none overflow-y-auto overflow-x-hidden rounded-2xl border border-orange-100 bg-[#fffaf3] p-3 text-slate-900 shadow-[0_24px_80px_rgba(15,23,42,0.18)] dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100 sm:w-[min(96vw,1280px)] sm:rounded-[2rem] sm:p-7">
           <DialogHeader className="mx-auto max-w-3xl px-8 text-center sm:px-0">
             <DialogTitle className="text-xl font-black tracking-tight text-slate-900 dark:text-slate-100 sm:text-3xl">选择你的群友身份</DialogTitle>
             <DialogDescription className="text-xs text-slate-500 dark:text-slate-400 sm:text-[14.5px]">
@@ -962,7 +962,7 @@ function CampaignHome() {
 
       {/* Campaign Nomination Dialog */}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-h-[92vh] w-[calc(100vw-1rem)] max-w-md overflow-y-auto border border-slate-200 bg-white p-4 text-slate-900 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100 sm:p-6">
+        <DialogContent className="max-h-[92vh] w-[calc(100vw-1rem)] max-w-md overflow-y-auto border border-orange-100 bg-[#fffaf3] p-4 text-slate-900 shadow-[0_24px_80px_rgba(15,23,42,0.18)] dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100 sm:p-6">
           <DialogHeader>
             <DialogTitle className="text-lg text-slate-900 dark:text-slate-100 sm:text-xl">提名新的 Galgame 游戏猜想</DialogTitle>
             <DialogDescription className="text-xs text-slate-500 dark:text-slate-400 sm:text-[14.5px]">
@@ -979,7 +979,7 @@ function CampaignHome() {
             )}
 
             {/* Bangumi 导入工具 */}
-            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 p-3 space-y-2.5">
+            <div className="space-y-2.5 rounded-xl border border-orange-100 bg-white/80 p-3 dark:border-slate-800 dark:bg-slate-950/50">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <span className="flex items-center gap-1.5 text-xs font-bold text-primary">
                   🔍 Bangumi (番组计划) 快捷搜索
