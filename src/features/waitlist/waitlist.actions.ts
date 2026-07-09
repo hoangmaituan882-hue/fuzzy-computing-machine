@@ -28,7 +28,8 @@ export const joinWaitlist = createServerFn({ method: 'POST' })
     // 每 IP 10 次 / 10 分钟：容得下真人改错邮箱重试，挡得住脚本灌库/替他人报名。
     // KV 故障时放行（fail-open）：限流是阻尼不是安全边界，不能让它把报名打挂。
     try {
-      const ip = getRequestHeader('cf-connecting-ip') ?? 'unknown'
+      const forwarded = getRequestHeader('x-forwarded-for')?.split(',')[0]?.trim()
+      const ip = forwarded || getRequestHeader('x-real-ip') || 'unknown'
       const allowed = await fixedWindowLimit(env.CACHE, `waitlist:${ip}`, 10, 600, Date.now())
       if (!allowed) return { status: 'rate-limited' }
     } catch (err) {

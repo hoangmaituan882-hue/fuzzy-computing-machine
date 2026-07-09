@@ -26,6 +26,9 @@ const envSchema = z
       .string({ error: 'BETTER_AUTH_SECRET is required' })
       .min(32, 'BETTER_AUTH_SECRET must be at least 32 characters'),
     BETTER_AUTH_URL: z.url({ error: 'BETTER_AUTH_URL must be a valid absolute URL' }),
+    DATABASE_URL: z.url({ error: 'DATABASE_URL must be a valid PostgreSQL connection URL' }),
+    DATABASE_POOL_SIZE: optional,
+    UPLOAD_DIR: optional,
 
     RESEND_API_KEY: optional,
     RESEND_AUDIENCE_ID: optional,

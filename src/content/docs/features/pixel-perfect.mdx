@@ -1,0 +1,140 @@
+---
+title: Pixel-Perfect 动效组件库 (扁平现代与毛玻璃规范)
+description: 了解如何在项目中使用和添加基于 GSAP、Framer Motion 的扁平化微动效组件。本网站明确不使用拟真/拟物 UI。
+---
+
+在放映厅项目的视觉设计中，**我们明确不使用拟真/拟物（Skeuomorphic / Realistic）UI**（例如高厚度的 3D 拟物实体按钮、模仿真实放映机模型的低多边形 3D 物体等）。
+
+本项目完全拥抱**扁平现代（Flat Modern）**与**高级毛玻璃微质感（Glassmorphism）**的设计语言。Pixel-Perfect 动效库在此处的作用，是为扁平的界面元素赋予**顺滑的物理运动惯性、磁吸力反馈及流线型的微动效**，使扁平 UI 显得富有生气而不显单调。
+
+---
+
+## 动效设计语言规范
+
+为保证全站扁平现代风格的纯粹性，开发时请遵循以下动效约束：
+1.  **绝对扁平化**：禁止使用模仿物理实体的斜角（Bevel）、重度内阴影、厚度边缘（3D Layer）。
+2.  **毛玻璃微质感**：背景采用深色微渐变叠加高模糊度背板（`backdrop-blur-md bg-card/65`），边缘用极细的半透明线（`border-white/10`）勾勒。
+3.  **物理动效响应**：使用弹簧物理学（Spring physics）来代替线性过渡，让扁平元素的放大、滑动和淡入淡出带有顺滑的惯性减速感。
+
+---
+
+## 扁平现代动效 17 大分类应用参考
+
+以下是符合扁平化设计语言的 Pixel-Perfect 核心动效类别在本项目中的推荐使用场景：
+
+### 01. 按钮微动效 (Flat Buttons)
+*   **适用场景**：磁吸扁平按钮（Hover 时按钮轻微且平滑地被吸向光标）、边框淡入亮化按钮。
+*   **动效原理解析**：按钮保持 2D 扁平，但在 Hover 时通过 Framer Motion 将 `x` 和 `y` 坐标以低刚度弹簧向鼠标拉近，形成极高互动的“引力感”。
+
+### 02. SVG 线条绘制 (SVG Stroke Draw)
+*   **适用场景**：平滑画线勾勒图标、加载等待圈、成功对勾。
+*   **动效原理解析**：扁平图标在 Hover 或显现时，边缘线条像手绘一样流畅地一笔画成，不带任何 3D 厚度。
+
+### 03. 物理运动 (Motion Interactions)
+*   **适用场景**：弹窗（Dialog）的惯性弹性弹出、淡出。
+*   **设计参数**：刚度 `stiffness: 220`，阻尼 `damping: 24`，保证其既有弹性又极速干净，不拖泥带水。
+
+### 04. GSAP 编排动画 (GSAP Stagger)
+*   **适用场景**：数据看板大屏首次进入时，所有的扁平信息卡片按顺序交错（Stagger）渐显浮现。
+
+### 05. 扁平轮播 (Flat Carousels)
+*   **适用场景**：横向滚动的动漫海报，支持鼠标/手势拖拽并带惯性回弹。
+
+### 06. 背景波形与曲线 (SVG Waves)
+*   **适用场景**：正弦波形的分隔边缘，增加扁平界面的流动感。
+
+### 07. 文本微动效 (Text Animations)
+*   **适用场景**：首页大标题字符微缩放滚入、流光渐变文字。
+
+### 08. 滚动显现 (Scroll Animation)
+*   **适用场景**：页面向下滚动时，扁平时间轴卡片平滑浮现，中间连接虚线跟随滚动向下描绘。
+
+### 09. 跑马灯边框 (Tracing Borders)
+*   **适用场景**：悬停在提名卡片上时，一条极细的霓虹光纤边框沿着卡片四周做跑马灯游走，突出视觉焦点。
+
+### 10. 流光极光背景 (Mesh Gradients)
+*   **适用场景**：网页背景深处的流动微渐变，模拟深夜放映厅的极光漫反射，增加画面的高端质感。
+
+### 11. 径向遮罩 (radial-gradient Masks)
+*   **适用场景**：影视海报 Hover 时，在光标位置晕开局部高光，显现海报细节。
+
+### 12. 图像渐变消隐 (Fade Gradients)
+*   **适用场景**：海报底部融合，从图片平滑过渡到背景色，防止图片生硬截断。
+
+### 13. 扁平鼠标跟随 (Magnetic Cursor)
+*   **适用场景**：一个极轻量的圆形虚化光晕延迟跟随光标（延迟追踪），作为扁平界面上的点缀。
+
+### 14. 粘性分裂 (Gooey Path Effects)
+*   **适用场景**：票数增加时，圆点像水滴一样从数字上分裂弹出的弹性效果。
+
+### 15. 便当盒布局 (Bento Grid)
+*   **适用场景**：用户中心的数据看板。将各项出勤统计、影评指标拼合成现代扁平的便当格子。
+
+### 16. 果冻侧边栏 (Elastic Sidebars)
+*   **适用场景**：左侧 AppShell 导航折叠时，侧边栏带有像果冻一样的弹性拉扯阻尼。
+
+### 17. 抽象着色器 (Generative Shaders)
+*   **适用场景**：背景噪声颗粒质感、微弱的流体波纹，营造极简黑客或电影胶片风格。
+
+---
+
+## 典型组件范例：扁平磁吸按钮 (MagneticButton)
+
+以下是符合**扁平现代规范**的 Pixel-Perfect 磁吸按钮代码设计模板，使用 Framer Motion 实现：
+
+```tsx
+import { motion, useMotionValue, useSpring } from 'framer-motion'
+import { useRef } from 'react'
+
+interface MagneticButtonProps {
+  children: React.ReactNode
+  className?: string
+}
+
+export function MagneticButton({ children, className = '' }: MagneticButtonProps) {
+  const ref = useRef<HTMLButtonElement>(null)
+
+  // 鼠标位置与弹簧曲线配置
+  const mouseX = useMotionValue(0)
+  const mouseY = useMotionValue(0)
+
+  const springConfig = { damping: 15, stiffness: 150, mass: 0.6 }
+  const x = useSpring(mouseX, springConfig)
+  const y = useSpring(mouseY, springConfig)
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const el = ref.current
+    if (!el) return
+
+    const { clientX, clientY } = e
+    const { left, top, width, height } = el.getBoundingClientRect()
+    
+    // 计算光标与按钮中心的相对距离，拉力系数为 0.35
+    const targetX = (clientX - (left + width / 2)) * 0.35
+    const targetY = (clientY - (top + height / 2)) * 0.35
+
+    mouseX.set(targetX)
+    mouseY.set(targetY)
+  }
+
+  const handleMouseLeave = () => {
+    // 鼠标移出后自动回弹至中心 (0, 0)
+    mouseX.set(0)
+    mouseY.set(0)
+  }
+
+  return (
+    <motion.button
+      ref={ref}
+      style={{ x, y }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className={`px-5 py-2.5 rounded-xl bg-primary text-white font-semibold transition-colors duration-200 hover:bg-primary/95 border border-primary/20 ${className}`}
+    >
+      {children}
+    </motion.button>
+  )
+}
+```
+
+在以后的页面构建中，请**杜绝任何厚重的 3D 拟物化设计**。所有新增的高级微动效一律基于此扁平磁吸及毛玻璃标准进行开发。

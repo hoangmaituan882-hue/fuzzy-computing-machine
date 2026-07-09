@@ -10,12 +10,12 @@ export interface Preferences {
 
 export const getPreferences = createServerFn({ method: 'GET' }).handler(
   async (): Promise<Preferences> => {
-    // Theme resolution: explicit cookie > system preference > dark (brand default).
+    // Theme resolution: explicit cookie > system preference > light (brand default).
     // The server only sees the cookie; for cookie-less visitors a pre-paint inline
-    // script in __root flips to light when `prefers-color-scheme: light` — so the
-    // SSR fallback here stays dark and first-time visitors follow their OS.
+    // script in __root flips to dark when `prefers-color-scheme: dark` — so the
+    // SSR fallback here stays light and first-time visitors follow their OS.
     const cookie = getCookie('theme')
     const themeFromCookie = cookie === 'light' || cookie === 'dark'
-    return { theme: cookie === 'light' ? 'light' : 'dark', themeFromCookie }
+    return { theme: cookie === 'dark' ? 'dark' : 'light', themeFromCookie }
   },
 )

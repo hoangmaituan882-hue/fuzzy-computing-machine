@@ -1,10 +1,11 @@
+const counters = new Map<string, { count: number; expiresAt: number }>()
+
 /**
- * Fixed-window rate limit on Workers KV. KV is eventually consistent, so this
- * is abuse damping (bounds unauthenticated write volume), not a precise quota —
- * the right trade-off for a public form. Counter keys expire with the window.
+ * Simple in-process fixed-window limiter for single-container 1Panel deploys.
+ * If you later run multiple replicas, replace this with Redis.
  */
 export async function fixedWindowLimit(
-  kv: KVNamespace,
+  _store: unknown,
   key: string,
   limit: number,
   windowSec: number,
@@ -12,8 +13,11 @@ export async function fixedWindowLimit(
 ): Promise<boolean> {
   const windowId = Math.floor(nowMs / 1000 / windowSec)
   const k = `rl:${key}:${windowId}`
-  const n = Number((await kv.get(k)) ?? '0')
-  if (n >= limit) return false
-  await kv.put(k, String(n + 1), { expirationTtl: Math.max(60, windowSec * 2) })
+  const existing = counters.get(k)
+  if (existing && existing.expiresAt <= nowMs) counters.delete(k)
+
+  const current = counters.get(k) ?? { count: 0, expiresAt: nowMs + windowSec * 2000 }
+  if (current.count >= limit) return false
+  counters.set(k, { ...current, count: current.count + 1 })
   return true
 }

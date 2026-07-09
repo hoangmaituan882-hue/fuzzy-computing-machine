@@ -35,6 +35,7 @@ import { Route as Char123LocaleChar125AppAccountRouteImport } from './routes/{-$
 import { Route as Char123LocaleChar125AdminWaitlistRouteImport } from './routes/{-$locale}/admin/waitlist'
 import { Route as Char123LocaleChar125AdminUsersRouteImport } from './routes/{-$locale}/admin/users'
 import { Route as Char123LocaleChar125AdminSponsorsRouteImport } from './routes/{-$locale}/admin/sponsors'
+import { Route as Char123LocaleChar125AdminScreeningRouteImport } from './routes/{-$locale}/admin/screening'
 import { Route as Char123LocaleChar125AdminFeedbackRouteImport } from './routes/{-$locale}/admin/feedback'
 import { Route as Char123LocaleChar125authVerifyEmailRouteImport } from './routes/{-$locale}/(auth)/verify-email'
 import { Route as Char123LocaleChar125authResetPasswordRouteImport } from './routes/{-$locale}/(auth)/reset-password'
@@ -42,8 +43,12 @@ import { Route as Char123LocaleChar125authRegisterRouteImport } from './routes/{
 import { Route as Char123LocaleChar125authLoginRouteImport } from './routes/{-$locale}/(auth)/login'
 import { Route as Char123LocaleChar125authForgotPasswordRouteImport } from './routes/{-$locale}/(auth)/forgot-password'
 import { Route as ApiWebhooksStripeRouteImport } from './routes/api/webhooks/stripe'
+import { Route as ApiScreeningGroupImagesSplatRouteImport } from './routes/api/screening-group-images/$'
 import { Route as ApiAvatarsSplatRouteImport } from './routes/api/avatars/$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as Char123LocaleChar125AppCinemaRecordsRouteImport } from './routes/{-$locale}/app/cinema/records'
+import { Route as Char123LocaleChar125AppCinemaPlazaRouteImport } from './routes/{-$locale}/app/cinema/plaza'
+import { Route as Char123LocaleChar125AppCinemaDashboardRouteImport } from './routes/{-$locale}/app/cinema/dashboard'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -192,6 +197,12 @@ const Char123LocaleChar125AdminSponsorsRoute =
     path: '/sponsors',
     getParentRoute: () => Char123LocaleChar125AdminRouteRoute,
   } as any)
+const Char123LocaleChar125AdminScreeningRoute =
+  Char123LocaleChar125AdminScreeningRouteImport.update({
+    id: '/screening',
+    path: '/screening',
+    getParentRoute: () => Char123LocaleChar125AdminRouteRoute,
+  } as any)
 const Char123LocaleChar125AdminFeedbackRoute =
   Char123LocaleChar125AdminFeedbackRouteImport.update({
     id: '/feedback',
@@ -233,6 +244,12 @@ const ApiWebhooksStripeRoute = ApiWebhooksStripeRouteImport.update({
   path: '/api/webhooks/stripe',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiScreeningGroupImagesSplatRoute =
+  ApiScreeningGroupImagesSplatRouteImport.update({
+    id: '/api/screening-group-images/$',
+    path: '/api/screening-group-images/$',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAvatarsSplatRoute = ApiAvatarsSplatRouteImport.update({
   id: '/api/avatars/$',
   path: '/api/avatars/$',
@@ -243,6 +260,24 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Char123LocaleChar125AppCinemaRecordsRoute =
+  Char123LocaleChar125AppCinemaRecordsRouteImport.update({
+    id: '/app/cinema/records',
+    path: '/app/cinema/records',
+    getParentRoute: () => Char123LocaleChar125RouteRoute,
+  } as any)
+const Char123LocaleChar125AppCinemaPlazaRoute =
+  Char123LocaleChar125AppCinemaPlazaRouteImport.update({
+    id: '/app/cinema/plaza',
+    path: '/app/cinema/plaza',
+    getParentRoute: () => Char123LocaleChar125RouteRoute,
+  } as any)
+const Char123LocaleChar125AppCinemaDashboardRoute =
+  Char123LocaleChar125AppCinemaDashboardRouteImport.update({
+    id: '/app/cinema/dashboard',
+    path: '/app/cinema/dashboard',
+    getParentRoute: () => Char123LocaleChar125RouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/{-$locale}': typeof Char123LocaleChar125RouteRouteWithChildren
@@ -265,6 +300,7 @@ export interface FileRoutesByFullPath {
   '/{-$locale}/': typeof Char123LocaleChar125IndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/avatars/$': typeof ApiAvatarsSplatRoute
+  '/api/screening-group-images/$': typeof ApiScreeningGroupImagesSplatRoute
   '/api/webhooks/stripe': typeof ApiWebhooksStripeRoute
   '/{-$locale}/forgot-password': typeof Char123LocaleChar125authForgotPasswordRoute
   '/{-$locale}/login': typeof Char123LocaleChar125authLoginRoute
@@ -272,6 +308,7 @@ export interface FileRoutesByFullPath {
   '/{-$locale}/reset-password': typeof Char123LocaleChar125authResetPasswordRoute
   '/{-$locale}/verify-email': typeof Char123LocaleChar125authVerifyEmailRoute
   '/{-$locale}/admin/feedback': typeof Char123LocaleChar125AdminFeedbackRoute
+  '/{-$locale}/admin/screening': typeof Char123LocaleChar125AdminScreeningRoute
   '/{-$locale}/admin/sponsors': typeof Char123LocaleChar125AdminSponsorsRoute
   '/{-$locale}/admin/users': typeof Char123LocaleChar125AdminUsersRoute
   '/{-$locale}/admin/waitlist': typeof Char123LocaleChar125AdminWaitlistRoute
@@ -280,6 +317,9 @@ export interface FileRoutesByFullPath {
   '/{-$locale}/app/pro': typeof Char123LocaleChar125AppProRoute
   '/{-$locale}/admin/': typeof Char123LocaleChar125AdminIndexRoute
   '/{-$locale}/app/': typeof Char123LocaleChar125AppIndexRoute
+  '/{-$locale}/app/cinema/dashboard': typeof Char123LocaleChar125AppCinemaDashboardRoute
+  '/{-$locale}/app/cinema/plaza': typeof Char123LocaleChar125AppCinemaPlazaRoute
+  '/{-$locale}/app/cinema/records': typeof Char123LocaleChar125AppCinemaRecordsRoute
 }
 export interface FileRoutesByTo {
   '/llms-full.txt': typeof LlmsFullDottxtRoute
@@ -300,6 +340,7 @@ export interface FileRoutesByTo {
   '/{-$locale}': typeof Char123LocaleChar125IndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/avatars/$': typeof ApiAvatarsSplatRoute
+  '/api/screening-group-images/$': typeof ApiScreeningGroupImagesSplatRoute
   '/api/webhooks/stripe': typeof ApiWebhooksStripeRoute
   '/{-$locale}/forgot-password': typeof Char123LocaleChar125authForgotPasswordRoute
   '/{-$locale}/login': typeof Char123LocaleChar125authLoginRoute
@@ -307,6 +348,7 @@ export interface FileRoutesByTo {
   '/{-$locale}/reset-password': typeof Char123LocaleChar125authResetPasswordRoute
   '/{-$locale}/verify-email': typeof Char123LocaleChar125authVerifyEmailRoute
   '/{-$locale}/admin/feedback': typeof Char123LocaleChar125AdminFeedbackRoute
+  '/{-$locale}/admin/screening': typeof Char123LocaleChar125AdminScreeningRoute
   '/{-$locale}/admin/sponsors': typeof Char123LocaleChar125AdminSponsorsRoute
   '/{-$locale}/admin/users': typeof Char123LocaleChar125AdminUsersRoute
   '/{-$locale}/admin/waitlist': typeof Char123LocaleChar125AdminWaitlistRoute
@@ -315,6 +357,9 @@ export interface FileRoutesByTo {
   '/{-$locale}/app/pro': typeof Char123LocaleChar125AppProRoute
   '/{-$locale}/admin': typeof Char123LocaleChar125AdminIndexRoute
   '/{-$locale}/app': typeof Char123LocaleChar125AppIndexRoute
+  '/{-$locale}/app/cinema/dashboard': typeof Char123LocaleChar125AppCinemaDashboardRoute
+  '/{-$locale}/app/cinema/plaza': typeof Char123LocaleChar125AppCinemaPlazaRoute
+  '/{-$locale}/app/cinema/records': typeof Char123LocaleChar125AppCinemaRecordsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -338,6 +383,7 @@ export interface FileRoutesById {
   '/{-$locale}/': typeof Char123LocaleChar125IndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/avatars/$': typeof ApiAvatarsSplatRoute
+  '/api/screening-group-images/$': typeof ApiScreeningGroupImagesSplatRoute
   '/api/webhooks/stripe': typeof ApiWebhooksStripeRoute
   '/{-$locale}/(auth)/forgot-password': typeof Char123LocaleChar125authForgotPasswordRoute
   '/{-$locale}/(auth)/login': typeof Char123LocaleChar125authLoginRoute
@@ -345,6 +391,7 @@ export interface FileRoutesById {
   '/{-$locale}/(auth)/reset-password': typeof Char123LocaleChar125authResetPasswordRoute
   '/{-$locale}/(auth)/verify-email': typeof Char123LocaleChar125authVerifyEmailRoute
   '/{-$locale}/admin/feedback': typeof Char123LocaleChar125AdminFeedbackRoute
+  '/{-$locale}/admin/screening': typeof Char123LocaleChar125AdminScreeningRoute
   '/{-$locale}/admin/sponsors': typeof Char123LocaleChar125AdminSponsorsRoute
   '/{-$locale}/admin/users': typeof Char123LocaleChar125AdminUsersRoute
   '/{-$locale}/admin/waitlist': typeof Char123LocaleChar125AdminWaitlistRoute
@@ -353,6 +400,9 @@ export interface FileRoutesById {
   '/{-$locale}/app/pro': typeof Char123LocaleChar125AppProRoute
   '/{-$locale}/admin/': typeof Char123LocaleChar125AdminIndexRoute
   '/{-$locale}/app/': typeof Char123LocaleChar125AppIndexRoute
+  '/{-$locale}/app/cinema/dashboard': typeof Char123LocaleChar125AppCinemaDashboardRoute
+  '/{-$locale}/app/cinema/plaza': typeof Char123LocaleChar125AppCinemaPlazaRoute
+  '/{-$locale}/app/cinema/records': typeof Char123LocaleChar125AppCinemaRecordsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -377,6 +427,7 @@ export interface FileRouteTypes {
     | '/{-$locale}/'
     | '/api/auth/$'
     | '/api/avatars/$'
+    | '/api/screening-group-images/$'
     | '/api/webhooks/stripe'
     | '/{-$locale}/forgot-password'
     | '/{-$locale}/login'
@@ -384,6 +435,7 @@ export interface FileRouteTypes {
     | '/{-$locale}/reset-password'
     | '/{-$locale}/verify-email'
     | '/{-$locale}/admin/feedback'
+    | '/{-$locale}/admin/screening'
     | '/{-$locale}/admin/sponsors'
     | '/{-$locale}/admin/users'
     | '/{-$locale}/admin/waitlist'
@@ -392,6 +444,9 @@ export interface FileRouteTypes {
     | '/{-$locale}/app/pro'
     | '/{-$locale}/admin/'
     | '/{-$locale}/app/'
+    | '/{-$locale}/app/cinema/dashboard'
+    | '/{-$locale}/app/cinema/plaza'
+    | '/{-$locale}/app/cinema/records'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/llms-full.txt'
@@ -412,6 +467,7 @@ export interface FileRouteTypes {
     | '/{-$locale}'
     | '/api/auth/$'
     | '/api/avatars/$'
+    | '/api/screening-group-images/$'
     | '/api/webhooks/stripe'
     | '/{-$locale}/forgot-password'
     | '/{-$locale}/login'
@@ -419,6 +475,7 @@ export interface FileRouteTypes {
     | '/{-$locale}/reset-password'
     | '/{-$locale}/verify-email'
     | '/{-$locale}/admin/feedback'
+    | '/{-$locale}/admin/screening'
     | '/{-$locale}/admin/sponsors'
     | '/{-$locale}/admin/users'
     | '/{-$locale}/admin/waitlist'
@@ -427,6 +484,9 @@ export interface FileRouteTypes {
     | '/{-$locale}/app/pro'
     | '/{-$locale}/admin'
     | '/{-$locale}/app'
+    | '/{-$locale}/app/cinema/dashboard'
+    | '/{-$locale}/app/cinema/plaza'
+    | '/{-$locale}/app/cinema/records'
   id:
     | '__root__'
     | '/{-$locale}'
@@ -449,6 +509,7 @@ export interface FileRouteTypes {
     | '/{-$locale}/'
     | '/api/auth/$'
     | '/api/avatars/$'
+    | '/api/screening-group-images/$'
     | '/api/webhooks/stripe'
     | '/{-$locale}/(auth)/forgot-password'
     | '/{-$locale}/(auth)/login'
@@ -456,6 +517,7 @@ export interface FileRouteTypes {
     | '/{-$locale}/(auth)/reset-password'
     | '/{-$locale}/(auth)/verify-email'
     | '/{-$locale}/admin/feedback'
+    | '/{-$locale}/admin/screening'
     | '/{-$locale}/admin/sponsors'
     | '/{-$locale}/admin/users'
     | '/{-$locale}/admin/waitlist'
@@ -464,6 +526,9 @@ export interface FileRouteTypes {
     | '/{-$locale}/app/pro'
     | '/{-$locale}/admin/'
     | '/{-$locale}/app/'
+    | '/{-$locale}/app/cinema/dashboard'
+    | '/{-$locale}/app/cinema/plaza'
+    | '/{-$locale}/app/cinema/records'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -479,6 +544,7 @@ export interface RootRouteChildren {
   DocsSplatRoute: typeof DocsSplatRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiAvatarsSplatRoute: typeof ApiAvatarsSplatRoute
+  ApiScreeningGroupImagesSplatRoute: typeof ApiScreeningGroupImagesSplatRoute
   ApiWebhooksStripeRoute: typeof ApiWebhooksStripeRoute
 }
 
@@ -666,6 +732,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char123LocaleChar125AdminSponsorsRouteImport
       parentRoute: typeof Char123LocaleChar125AdminRouteRoute
     }
+    '/{-$locale}/admin/screening': {
+      id: '/{-$locale}/admin/screening'
+      path: '/screening'
+      fullPath: '/{-$locale}/admin/screening'
+      preLoaderRoute: typeof Char123LocaleChar125AdminScreeningRouteImport
+      parentRoute: typeof Char123LocaleChar125AdminRouteRoute
+    }
     '/{-$locale}/admin/feedback': {
       id: '/{-$locale}/admin/feedback'
       path: '/feedback'
@@ -715,6 +788,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiWebhooksStripeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/screening-group-images/$': {
+      id: '/api/screening-group-images/$'
+      path: '/api/screening-group-images/$'
+      fullPath: '/api/screening-group-images/$'
+      preLoaderRoute: typeof ApiScreeningGroupImagesSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/avatars/$': {
       id: '/api/avatars/$'
       path: '/api/avatars/$'
@@ -729,11 +809,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/{-$locale}/app/cinema/records': {
+      id: '/{-$locale}/app/cinema/records'
+      path: '/app/cinema/records'
+      fullPath: '/{-$locale}/app/cinema/records'
+      preLoaderRoute: typeof Char123LocaleChar125AppCinemaRecordsRouteImport
+      parentRoute: typeof Char123LocaleChar125RouteRoute
+    }
+    '/{-$locale}/app/cinema/plaza': {
+      id: '/{-$locale}/app/cinema/plaza'
+      path: '/app/cinema/plaza'
+      fullPath: '/{-$locale}/app/cinema/plaza'
+      preLoaderRoute: typeof Char123LocaleChar125AppCinemaPlazaRouteImport
+      parentRoute: typeof Char123LocaleChar125RouteRoute
+    }
+    '/{-$locale}/app/cinema/dashboard': {
+      id: '/{-$locale}/app/cinema/dashboard'
+      path: '/app/cinema/dashboard'
+      fullPath: '/{-$locale}/app/cinema/dashboard'
+      preLoaderRoute: typeof Char123LocaleChar125AppCinemaDashboardRouteImport
+      parentRoute: typeof Char123LocaleChar125RouteRoute
+    }
   }
 }
 
 interface Char123LocaleChar125AdminRouteRouteChildren {
   Char123LocaleChar125AdminFeedbackRoute: typeof Char123LocaleChar125AdminFeedbackRoute
+  Char123LocaleChar125AdminScreeningRoute: typeof Char123LocaleChar125AdminScreeningRoute
   Char123LocaleChar125AdminSponsorsRoute: typeof Char123LocaleChar125AdminSponsorsRoute
   Char123LocaleChar125AdminUsersRoute: typeof Char123LocaleChar125AdminUsersRoute
   Char123LocaleChar125AdminWaitlistRoute: typeof Char123LocaleChar125AdminWaitlistRoute
@@ -744,6 +846,8 @@ const Char123LocaleChar125AdminRouteRouteChildren: Char123LocaleChar125AdminRout
   {
     Char123LocaleChar125AdminFeedbackRoute:
       Char123LocaleChar125AdminFeedbackRoute,
+    Char123LocaleChar125AdminScreeningRoute:
+      Char123LocaleChar125AdminScreeningRoute,
     Char123LocaleChar125AdminSponsorsRoute:
       Char123LocaleChar125AdminSponsorsRoute,
     Char123LocaleChar125AdminUsersRoute: Char123LocaleChar125AdminUsersRoute,
@@ -775,6 +879,9 @@ interface Char123LocaleChar125RouteRouteChildren {
   Char123LocaleChar125AppFeedbackRoute: typeof Char123LocaleChar125AppFeedbackRoute
   Char123LocaleChar125AppProRoute: typeof Char123LocaleChar125AppProRoute
   Char123LocaleChar125AppIndexRoute: typeof Char123LocaleChar125AppIndexRoute
+  Char123LocaleChar125AppCinemaDashboardRoute: typeof Char123LocaleChar125AppCinemaDashboardRoute
+  Char123LocaleChar125AppCinemaPlazaRoute: typeof Char123LocaleChar125AppCinemaPlazaRoute
+  Char123LocaleChar125AppCinemaRecordsRoute: typeof Char123LocaleChar125AppCinemaRecordsRoute
 }
 
 const Char123LocaleChar125RouteRouteChildren: Char123LocaleChar125RouteRouteChildren =
@@ -801,6 +908,12 @@ const Char123LocaleChar125RouteRouteChildren: Char123LocaleChar125RouteRouteChil
     Char123LocaleChar125AppFeedbackRoute: Char123LocaleChar125AppFeedbackRoute,
     Char123LocaleChar125AppProRoute: Char123LocaleChar125AppProRoute,
     Char123LocaleChar125AppIndexRoute: Char123LocaleChar125AppIndexRoute,
+    Char123LocaleChar125AppCinemaDashboardRoute:
+      Char123LocaleChar125AppCinemaDashboardRoute,
+    Char123LocaleChar125AppCinemaPlazaRoute:
+      Char123LocaleChar125AppCinemaPlazaRoute,
+    Char123LocaleChar125AppCinemaRecordsRoute:
+      Char123LocaleChar125AppCinemaRecordsRoute,
   }
 
 const Char123LocaleChar125RouteRouteWithChildren =
@@ -821,6 +934,7 @@ const rootRouteChildren: RootRouteChildren = {
   DocsSplatRoute: DocsSplatRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiAvatarsSplatRoute: ApiAvatarsSplatRoute,
+  ApiScreeningGroupImagesSplatRoute: ApiScreeningGroupImagesSplatRoute,
   ApiWebhooksStripeRoute: ApiWebhooksStripeRoute,
 }
 export const routeTree = rootRouteImport

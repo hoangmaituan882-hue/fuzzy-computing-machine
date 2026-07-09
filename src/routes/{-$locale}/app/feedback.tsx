@@ -18,10 +18,8 @@ import { fmtDate } from '@/lib/format-date'
 export const Route = createFileRoute('/{-$locale}/app/feedback')({
   head: () => ({ meta: [{ name: 'robots', content: 'noindex' }] }),
   loader: async ({ params }) => {
-    const [user, items] = await Promise.all([
-      requireUser({ data: { locale: (params as { locale?: string }).locale } }),
-      getMyFeedbackFn(),
-    ])
+    const user = await requireUser({ data: { locale: (params as { locale?: string }).locale } })
+    const items = await getMyFeedbackFn()
     return { user, items }
   },
   component: FeedbackPage,

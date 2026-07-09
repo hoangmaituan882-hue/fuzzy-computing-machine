@@ -6,6 +6,7 @@ import { LangSwitch } from '@/features/i18n/lang-switch'
 
 const GITHUB_URL = 'https://github.com/flarestarter/flarestarter'
 const TELEGRAM_URL = 'https://t.me/+coaN5Ihjte9jNzZl'
+const ICP_RECORD = '赣ICP备2026006064号'
 
 export function Footer({ theme }: { theme: 'light' | 'dark' }) {
   const { t } = useTranslation()
@@ -47,9 +48,14 @@ export function Footer({ theme }: { theme: 'light' | 'dark' }) {
       </div>
 
       <div className="mt-8 flex flex-col items-start justify-between gap-4 border-t border-border pt-5 sm:flex-row sm:items-center">
-        <p className="text-[13px] text-fg-3">
-          &copy; {year} {t('common.appName')}. {t('marketing.footerRights')}
-        </p>
+        <div className="space-y-1 text-[13px] text-fg-3">
+          <p>
+            &copy; {year} {t('common.appName')}. {t('marketing.footerRights')}
+          </p>
+          <a className="transition-colors hover:text-foreground" href="https://beian.miit.gov.cn/" target="_blank" rel="noreferrer">
+            {ICP_RECORD}
+          </a>
+        </div>
         <div className="flex items-center gap-1">
           <ThemeToggle theme={theme} />
           <LangSwitch />

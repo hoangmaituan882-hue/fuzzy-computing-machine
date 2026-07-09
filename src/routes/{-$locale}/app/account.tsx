@@ -17,7 +17,8 @@ import { AvatarUploader } from '@/features/storage/components/avatar-uploader'
 export const Route = createFileRoute('/{-$locale}/app/account')({
   head: () => ({ meta: [{ name: 'robots', content: 'noindex' }] }),
   loader: async ({ params }) => {
-    const [user, ent] = await Promise.all([requireUser({ data: { locale: (params as { locale?: string }).locale } }), getEntitlement()])
+    const user = await requireUser({ data: { locale: (params as { locale?: string }).locale } })
+    const ent = await getEntitlement()
     return { user, ent }
   },
   component: AccountPage,

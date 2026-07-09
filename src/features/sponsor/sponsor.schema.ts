@@ -1,6 +1,6 @@
-import { sqliteTable, text, integer, index } from 'drizzle-orm/sqlite-core'
+import { pgTable, text, integer, index, boolean, timestamp } from 'drizzle-orm/pg-core'
 
-export const sponsorship = sqliteTable('sponsorship', {
+export const sponsorship = pgTable('sponsorship', {
   id: text('id').primaryKey(),                                 // = Stripe checkout session id
   email: text('email'),                                        // Stripe 收集，可能为空
   github: text('github'),                                      // 选填 GitHub 用户名（致谢名单来源）
@@ -12,8 +12,8 @@ export const sponsorship = sqliteTable('sponsorship', {
   stripeSubscriptionId: text('stripe_subscription_id'),        // 仅 recurring
   stripePaymentIntentId: text('stripe_payment_intent_id'),     // 仅 once；退款/拒付事件按此匹配
   status: text('status').notNull(),                            // 'completed' | 'active' | 'canceled' | 'refunded' | 'disputed'
-  hidden: integer('hidden', { mode: 'boolean' }).notNull().default(false), // 管理员下架位
-  createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
+  hidden: boolean('hidden').notNull().default(false), // 管理员下架位
+  createdAt: timestamp('created_at').notNull(),
 }, (t) => [
   // refund/dispute 事件对账户上每笔 charge 都会触发（无 metadata 可过滤），
   // 逐笔按 PI/订阅 id 匹配——没有索引就是全表扫

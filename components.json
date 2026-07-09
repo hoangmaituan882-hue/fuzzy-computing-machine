@@ -13,5 +13,8 @@
     "components": "@/components",
     "utils": "@/lib/utils",
     "ui": "@/components/ui"
+  },
+  "registries": {
+    "@pixel-perfect": "https://www.pixel-perfect.space/r/{name}.json"
   }
 }

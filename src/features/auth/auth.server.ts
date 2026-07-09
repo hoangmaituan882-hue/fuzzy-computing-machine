@@ -46,7 +46,7 @@ export function createAuth(authEnv: AuthEnv, db: DB) {
   return betterAuth({
     secret: authEnv.BETTER_AUTH_SECRET,
     baseURL: authEnv.BETTER_AUTH_URL,
-    database: drizzleAdapter(db, { provider: 'sqlite', schema }),
+    database: drizzleAdapter(db, { provider: 'pg', schema }),
     emailAndPassword: {
       enabled: true,
       // 只在真能发邮件时强制验证：缺 RESEND_API_KEY 时验证邮件只进日志（dev transport），
@@ -70,7 +70,7 @@ export function createAuth(authEnv: AuthEnv, db: DB) {
     // On Workers: memory storage is per-isolate (useless), so persist in D1;
     // and the trusted client IP is cf-connecting-ip, not x-forwarded-for.
     rateLimit: { enabled: true, storage: 'database' },
-    advanced: { ipAddress: { ipAddressHeaders: ['cf-connecting-ip'] } },
+    advanced: { ipAddress: { ipAddressHeaders: ['x-forwarded-for', 'x-real-ip'] } },
     socialProviders: socialProviders(authEnv),
     // Auto-link a social login to an existing account with the same email, but
     // only for providers that return a *verified* email (GitHub, Google). This

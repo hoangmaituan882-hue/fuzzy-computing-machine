@@ -32,7 +32,7 @@ export const uploadAvatar = createServerFn({ method: 'POST' })
     if (!check.ok) return { ok: false, reason: check.reason }
 
     const bytes = await file.arrayBuffer()
-    await putAvatar(env.BUCKET, user.id, bytes, file.type)
+    await putAvatar(user.id, bytes, file.type)
 
     // Cache-bust so the <img> refetches immediately after re-upload.
     const url = `/api/avatars/${user.id}?v=${Date.now()}`

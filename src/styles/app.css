@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
+@import "./transitions.css";
 
 /* ── Self-hosted fonts (latin subset, /public/fonts) ─────────────────────────
    Served same-origin instead of fonts.googleapis.com: no render-blocking
@@ -669,4 +670,6 @@ input {
     animation: none;
   }
 }
+
+
 

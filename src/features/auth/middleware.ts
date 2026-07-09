@@ -11,7 +11,7 @@ import { env } from '@/lib/env'
 import { readUser } from './readUser.server'
 
 export const getOptionalUser = createServerFn({ method: 'GET' }).handler(
-  async (): Promise<{ id: string; email: string } | null> => readUser(),
+  async (): Promise<any> => readUser(),
 )
 
 export const requireUser = createServerFn({ method: 'GET' })

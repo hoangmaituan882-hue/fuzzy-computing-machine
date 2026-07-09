@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Link, getRouteApi } from '@tanstack/react-router'
-import { Home, Sparkles, Settings, Gauge, Users, Menu, ClipboardList, PanelLeftClose, PanelLeftOpen, Heart, MessageSquare } from 'lucide-react'
+import { Settings, Gauge, Users, Menu, ClipboardList, PanelLeftClose, PanelLeftOpen, Heart, MessageSquare, Ticket, Images } from 'lucide-react'
 import { Logo } from '@/components/brand/logo'
 import { Badge } from '@/components/ui/badge'
 import { ThemeToggle } from '@/features/theme/theme-toggle'
@@ -71,7 +72,22 @@ export function AppShell({
   const sidebar = (rail: boolean) => {
     const item = (isActive: boolean) =>
       `app-nav-item ${isActive ? 'active' : ''} ${rail ? 'justify-center' : ''}`
-    const label = (text: string) => (rail ? null : text)
+    const label = (text: string) => (
+      <AnimatePresence initial={false} mode="wait">
+        {!rail && (
+          <motion.span
+            key={text + '-label'}
+            initial={{ opacity: 0, x: -8 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -8 }}
+            transition={{ duration: 0.16, ease: 'easeOut' }}
+            className="truncate"
+          >
+            {text}
+          </motion.span>
+        )}
+      </AnimatePresence>
+    )
     // group boundaries: text label expanded, slim centered divider on the rail
     const grp = (text: string) =>
       rail ? <div className="mx-auto my-2 h-px w-6 bg-border" aria-hidden="true" /> : <div className="grp">{text}</div>
@@ -80,19 +96,10 @@ export function AppShell({
         <div className={rail ? 'brand justify-center' : 'brand'}>
           <Logo compact={rail} />
         </div>
-        {grp(t('app.navWorkspace'))}
-        <Link to="/{-$locale}/app" activeProps={{}} className={item(active === 'dashboard')} title={t('app.dashboard')}>
-          <Home size={18} className="shrink-0" />
-          {label(t('app.dashboard'))}
-        </Link>
-        <Link to="/{-$locale}/app/pro" activeProps={{}} className={item(active === 'pro')} title={t('app.proDemo')}>
-          <Sparkles size={18} className="shrink-0" />
-          {label(t('app.proDemo'))}
-          {!rail && <Badge variant="pro" className="ml-auto">Pro</Badge>}
-        </Link>
-        <Link to="/{-$locale}/app/feedback" activeProps={{}} className={item(active === 'feedback')} title={t('feedback.nav')}>
-          <MessageSquare size={18} className="shrink-0" />
-          {label(t('feedback.nav'))}
+        {grp("三个舰长群专属")}
+        <Link to="/{-$locale}/app/cinema/plaza" activeProps={{}} className={item(active === 'cinema-plaza')} title="猜游广场">
+          <Ticket size={18} className="shrink-0" />
+          {label("猜游广场")}
         </Link>
         {grp(t('app.navAccount'))}
         <Link to="/{-$locale}/app/account" activeProps={{}} className={item(active === 'account')} title={t('app.account')}>
@@ -109,6 +116,10 @@ export function AppShell({
             <Link to="/{-$locale}/admin/users" activeProps={{}} className={item(active === 'admin-users')} title={t('admin.users')}>
               <Users size={18} className="shrink-0" />
               {label(t('admin.users'))}
+            </Link>
+            <Link to="/{-$locale}/admin/screening" activeProps={{}} className={item(active === 'admin-screening')} title="群身份">
+              <Images size={18} className="shrink-0" />
+              {label("群身份")}
             </Link>
             <Link to="/{-$locale}/admin/waitlist" activeProps={{}} className={item(active === 'admin-waitlist')} title={t('admin.waitlist')}>
               <ClipboardList size={18} className="shrink-0" />
@@ -130,27 +141,38 @@ export function AppShell({
             <AvatarImage src={user.image ?? undefined} alt={primary} />
             <AvatarFallback>{initials(primary)}</AvatarFallback>
           </Avatar>
-          {!rail && (
-            <div className="min-w-0 flex-1">
-              <div className="truncate text-[13px] font-semibold text-foreground">{primary}</div>
-              <div className="truncate text-xs text-fg-3">{secondary}</div>
-            </div>
-          )}
+          <AnimatePresence initial={false}>
+            {!rail && (
+              <motion.div
+                key="user-info"
+                initial={{ opacity: 0, width: 0 }}
+                animate={{ opacity: 1, width: 'auto' }}
+                exit={{ opacity: 0, width: 0 }}
+                transition={{ duration: 0.2, ease: 'easeInOut' }}
+                className="min-w-0 flex-1 overflow-hidden"
+              >
+                <div className="truncate text-[13px] font-semibold text-foreground">{primary}</div>
+                <div className="truncate text-xs text-fg-3">{secondary}</div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </>
     )
   }
 
   return (
-    <div className={`min-h-screen md:grid ${collapsed ? 'md:grid-cols-[64px_1fr]' : 'md:grid-cols-[248px_1fr]'}`}>
-      {/* desktop sidebar — the plain-utility wrapper does the hiding: `.app-side`
-          sets display:flex in unlayered CSS, which outranks the layered `hidden`
-          utility, so `hidden` directly on the aside has no effect on mobile */}
-      <div className="hidden md:block">
-        {/* no px override here — .app-side's unlayered padding (12px) outranks
-            padding utilities anyway, and it happens to fit the 64px rail */}
-        <aside className="app-side h-full">{sidebar(collapsed)}</aside>
-      </div>
+    <div className="min-h-screen md:flex">
+      {/* desktop sidebar — animated width via framer-motion spring */}
+      <motion.div
+        className="hidden md:block shrink-0 overflow-hidden"
+        animate={{ width: collapsed ? 64 : 248 }}
+        transition={{ type: 'spring', stiffness: 280, damping: 28, mass: 0.8 }}
+      >
+        <aside className="app-side h-full" style={{ width: collapsed ? 64 : 248 }}>
+          {sidebar(collapsed)}
+        </aside>
+      </motion.div>
 
       {/* mobile drawer (always full-width, never the rail) */}
       {open && (
@@ -183,7 +205,7 @@ export function AppShell({
           </button>
           <span className="app-crumb">
             <span className="hidden md:inline">
-              FlareStarter <span className="mx-1.5 text-fg-3">/</span>
+              泛式舰长投票 <span className="mx-1.5 text-fg-3">/</span>
             </span>
             <b>{crumb}</b>
           </span>

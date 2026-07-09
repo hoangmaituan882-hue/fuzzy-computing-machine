@@ -1,0 +1,13 @@
+.git
+.agents
+.claude
+.wrangler
+node_modules
+dist
+uploads
+.env
+.env.*
+!.env.1panel.example
+*.log
+playwright-report
+test-results

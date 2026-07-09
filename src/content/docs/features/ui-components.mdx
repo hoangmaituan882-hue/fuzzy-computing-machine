@@ -48,7 +48,31 @@ export function LoginForm() {
 
 ### 如何添加新组件
 
-如果你需要添加当前项目中不存在的组件（例如 DatePicker, Slider 等），由于项目目前使用的是基础的复制粘贴模式，你可以：
-1. 访问 [shadcn/ui 组件库](https://ui.shadcn.com/docs/components/accordion)
-2. 选择你需要的组件，查看其代码。
-3. 在 `src/components/ui/` 中新建对应的文件并粘贴代码（注意可能需要手动调整 `cn` 函数的导入路径或安装相应的 Radix 依赖）。
+当前项目已完成 **shadcn CLI** 的配置与自定义第三方注册表的集成，添加新组件非常简便。
+
+#### 1. 添加官方 shadcn/ui 组件
+你可以直接在项目根目录下运行 CLI 指令安装官方组件：
+```bash
+npx shadcn add date-picker
+```
+CLI 会自动处理依赖和路径别名，并将组件安装至 `src/components/ui/`。
+
+#### 2. 添加 Pixel-Perfect 动画与特效组件
+本项目已集成 [vansh-nagar/Pixel-Perfect](https://github.com/vansh-nagar/Pixel-Perfect) 组件库注册表（使用 `@pixel-perfect` 命名空间）。如果需要引入其提供的高逼真动画与物理效果组件（如 3D 按钮、赛博朋克按钮等），可直接运行：
+```bash
+npx shadcn add @pixel-perfect/3d-button
+```
+项目目前已全局预装了该组件库的核心交互依赖（`gsap`、`@gsap/react`、`framer-motion`）。
+
+> [!TIP]
+> **CN 别名修复**：拉取组件后，如果出现类似 `Cannot find module '@/lib/cn'` 的导入错误，请将该行引用手动替换为本项目的标准工具别名路径：
+> ```diff
+> - import { cn } from "@/lib/cn";
+> + import { cn } from "@/lib/utils";
+> ```
+
+#### 3. 使用 transitions.dev 精细微动效
+当前项目已引入 [transitions.dev](https://github.com/Jakubantalik/transitions.dev) 生产级 CSS 动效框架：
+* 全局动效变量定义在 `src/styles/app.css` 的 `:root` 部分（包含时长、缓动、模糊度等参数）。
+* 项目中的 **明暗切换按钮 (ThemeToggle)** 已经成功重构并应用了 `.t-icon-swap` 动效。它通过双 DOM 图标节点和 `data-state` 控制，在点击明暗模式切换时，太阳与月亮图标会产生极其平滑柔和的**缩放、交叉淡隐和模糊过渡**效果。
+* 所有加入的动效都自动尊重系统的**减少动效（prefers-reduced-motion）**偏好设置，为用户提供无障碍的动效回退体验。

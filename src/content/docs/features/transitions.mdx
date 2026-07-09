@@ -1,0 +1,236 @@
+---
+title: CSS 动效设计规范 (transitions.dev)
+description: 本项目集成了 transitions.dev 动效规范。本文档记录了 21 种过渡动画的适用场景与代码实现指南。
+---
+
+在构建高级、精致的 Web 应用时，优秀的动效是提升品质感的关键。本项目全局集成了 **[transitions.dev](https://github.com/Jakubantalik/transitions.dev)**，这是一套**纯 CSS 实现、极度轻量、对移动端性能友好且支持减少动效（prefers-reduced-motion）偏好**的现代化过渡动画方案。
+
+---
+
+## 为什么之前没有立刻使用？
+
+在快速搭建原型时，开发人员往往会倾向于使用最直接的 Tailwind CSS 过渡类（如 `transition-all duration-300`），从而忽略了更细腻 affinity 的动画边界：
+
+1. **手风琴折叠（Accordion）的高度塌陷难题**：
+   * 传统的折叠动效通常使用 JavaScript 在运行时测量 `scrollHeight`，或者直接将 `max-height` 从 `0` 动画过渡到 `500px`。这两种方案要么会导致性能开销（引发重排），要么在内容较多/较少时产生令人不适的动画加速度失衡。
+   * **transitions.dev 的方案**：采用 `grid-template-rows: 0fr ↔ 1fr`。它不需要任何 JS 计算，完全由 CSS 浏览器网格布局渲染，能自适应任何内容高度。
+2. **三维山形图标形变（Chevron scaleY Flip）**：
+   * 许多折叠栏的箭头旋转是直接用 `rotate(180deg)`，这只是基础的三维平移。
+   * **transitions.dev 的方案**：沿 Y 轴进行翻转（`scaleY(1)` 到 `scaleY(-1)`）。图标在翻转的中间帧会变成一条完美的水平“直线”，模拟了 SVG 矢量路径 morphing 的动效，但在任何移动端浏览器上都极度流畅，不会像原生 `d:` 路径形变那样产生卡顿。
+
+在项目重构中，我们已全面规范并把这些特性引入了核心模块。
+
+---
+
+## 21 种过渡动画适用指南
+
+以下表格归纳了这 21 种动画的类名、**什么时候适合使用（Use Cases）**以及如何通过状态（React States / HTML data-attributes）来触发它们：
+
+| 序号 | 动画名称 (Class) | 什么时候可以用 (何时推荐) | 状态触发属性 (Trigger state) |
+| :--- | :--- | :--- | :--- |
+| **01** | `t-notification` | 新消息气泡、通知红点数更新 | `data-state="active" / "inactive"` |
+| **02** | `t-dropdown` | 导航栏下拉菜单、右键操作菜单 | `data-open="true" / "false"` |
+| **03** | `t-modal` | 模态弹窗、全局表单输入、确认对话框 | `data-open="true" / "false"` |
+| **04** | `t-panel-reveal` | 侧边栏设置抽屉、右侧详情展示面板 | `data-open="true" / "false"` |
+| **05** | `t-page` | 跨页面路由滑动、大板块左右滑动切换 | `data-state="enter" / "exit"` |
+| **06** | `t-card-resize` | 卡片大小调整、商品详情图展开 | `data-expanded="true" / "false"` |
+| **07** | `t-digit` | 看板数字跳动、金额/得票数递增或递减 | 数字节点直接包裹并在数值变化时更新 DOM |
+| **08** | `t-text-swap` | 文字状态切换（如 `开始放映` 变为 `放映中...`） | 更改 innerHTML 或修改 `data-text` |
+| **09** | `t-icon-swap` | 状态图标切换（如主题明/暗图标、播放/暂停、菜单/关闭） | 双图标节点容器配合状态切换（如本项目 `ThemeToggle`） |
+| **10** | `t-success` | 表单提交成功、动作成功完成的打勾动画 | `data-state="success"` |
+| **11** | `t-avatar-group` | 团队头像组重叠展示，悬停时展开展示完整头像 | 悬停在容器上（利用 CSS `:hover`） |
+| **12** | `t-error-shake` | 表单输入验证失败、必填项遗漏提示 | 状态判断为 Invalid 时添加类，抖动后移除 |
+| **13** | `t-search-clear` | 搜索输入框文字输入后，右侧淡入出现一键清空按钮 | `data-visible="true" / "false"` |
+| **14** | `t-skeleton` | 数据尚未加载完成时的灰色骨架屏渐变过渡 | 保持类名常驻，数据加载后移除元素 |
+| **15** | `t-shimmer` | Premium/Pro 会员卡片标题边缘的炫彩流光效果 | 常驻类名或在特定高亮版块激活 |
+| **16** | `t-tabs` | 选项卡切换，滑块跟随背景指示器左右滑动 | 修改滑动轨道在对应 Tab 索引下的 `transform` |
+| **17** | `t-morph` | 加号动作按钮变形为面板、FAB 变形展开菜单 | `data-open="true" / "false"` |
+| **18** | `t-tooltip` | Hover 悬停在按钮上时的轻量气泡说明文本 | 常驻子节点，利用 CSS `:hover` 自动触发 |
+| **19** | `t-reveal-text` | 首页沉浸式大标题、欢迎词等渐进式文字显现 | 页面首次加载时追加 `data-animate="true"` |
+| **20** | `t-tilt` | 影视封面海报、高亮宣传卡片的 3D 鼠标跟随倾斜 | 监听鼠标 mousemove 轴向距离并控制形变 |
+| **21** | `t-acc` | 折叠菜单、手风琴问答栏、影评展开面板 | `data-open="true" / "false"` |
+
+---
+
+## 典型动效代码模板
+
+### 1. 手风琴折叠面板 (Accordion)
+最适合**问答、评论展示折叠、设置面板**等内容高度可能变化的场景。
+
+```tsx
+import { useState } from 'react'
+
+export function AccordionDemo() {
+  const [isOpen, setIsOpen] = useState(false)
+
+  return (
+    <div className="t-acc" data-open={isOpen ? "true" : "false"}>
+      {/* 头部按钮 */}
+      <button 
+        onClick={() => setIsOpen(!isOpen)} 
+        className="t-acc-head"
+        aria-expanded={isOpen ? "true" : "false"}
+      >
+        <span>查看用户评论</span>
+        {/* 山形图标，scaleY 翻转 */}
+        <span className="t-acc-chevron">
+          <svg viewBox="0 0 16 16" className="w-4 h-4 fill-none stroke-current stroke-2">
+            <path d="M4 6.5L8 10.5L12 6.5"/>
+          </svg>
+        </span>
+      </button>
+
+      {/* 折叠面板 (注意必须有两层结构，且 padding 只能加在 inner 容器上) */}
+      <div className="t-acc-panel">
+        <div className="t-acc-panel-inner">
+          <div className="py-4 text-sm text-fg-2">
+            这里是动态撑开的内容，即使包含多张图片或长篇评论，高度变化也极度流畅平滑。
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+```
+
+### 2. 双图标状态交换 (Icon Swap)
+适合**明暗主题切换、音频播放/暂停、侧边栏收起/展开**等双重图标相互代替的交互。
+
+```tsx
+import { useState } from 'react'
+import { Sun, Moon } from 'lucide-react'
+
+export function ThemeToggle() {
+  const [theme, setTheme] = useState<'light' | 'dark'>('light')
+
+  return (
+    <button 
+      onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+      className="t-icon-swap relative h-9 w-9 border rounded-lg flex items-center justify-center"
+      data-state={theme === 'dark' ? 'active' : 'inactive'}
+    >
+      {/* 两个图标叠放在一起，CSS 负责交叉淡入淡出及缩放 */}
+      <Sun size={18} className="icon-main" />
+      <Moon size={18} className="icon-alt" />
+    </button>
+  )
+}
+```
+
+### 3. 表单验证错误抖动 (Error Shake)
+当用户**未填必填项、输入格式不正确、或者登录密码错误**时，提供物理级的晃动反馈。
+
+```tsx
+import { useState } from 'react'
+
+export function ErrorInput() {
+  const [hasError, setHasError] = useState(false)
+
+  const triggerError = () => {
+    setHasError(true)
+    // 抖动持续时长匹配 transitions.css 的定义，抖动后自动清空状态以便下次再次抖动
+    setTimeout(() => setHasError(false), 500)
+  }
+
+  return (
+    <div className="space-y-2">
+      <input 
+        type="text" 
+        className={`input ${hasError ? 't-error-shake border-rose-500' : ''}`} 
+        placeholder="请输入邮箱地址"
+      />
+      <button onClick={triggerError} className="btn btn-primary">提交</button>
+    </div>
+  )
+}
+```
+
+### 4. 三维卡片倾斜 (3D Card Tilt)
+在鼠标悬停在**重要海报、展示卡片**上时，添加高端的 3D 跟随效果。
+
+```tsx
+import { useRef } from 'react'
+
+export function TiltCard() {
+  const cardRef = useRef<HTMLDivElement>(null)
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const card = cardRef.current
+    if (!card) return
+    const rect = card.getBoundingClientRect()
+    const x = e.clientX - rect.left - rect.width / 2
+    const y = e.clientY - rect.top - rect.height / 2
+    
+    // 设置 CSS 自定义变量，由 transitions.css 内部的 transform 控制 3D 偏转
+    card.style.setProperty('--tilt-x', `${x / 10}deg`)
+    card.style.setProperty('--tilt-y', `${-y / 10}deg`)
+  }
+
+  const handleMouseLeave = () => {
+    const card = cardRef.current
+    if (!card) return
+    card.style.setProperty('--tilt-x', '0deg')
+    card.style.setProperty('--tilt-y', '0deg')
+  }
+
+  return (
+    <div 
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className="t-tilt w-60 h-80 rounded-2xl bg-card border shadow-lg flex items-center justify-center"
+    >
+      <span className="font-bold">3D 悬浮卡片</span>
+    </div>
+  )
+}
+
+### 5. 加号按钮菜单变形 (Plus to Menu Morph)
+适合用作**悬浮操作按钮 (FAB) 或快捷添加项**，点击时它会自身放大变形为一个圆角功能菜单，而不是弹出一个脱离触发器的独立面板。
+
+```tsx
+import { useState } from 'react'
+import { Plus } from 'lucide-react'
+
+export function PlusMenuMorphDemo() {
+  const [isOpen, setIsOpen] = useState(false)
+
+  return (
+    <div className="t-morph" data-open={isOpen ? "true" : "false"}>
+      {/* 变形后的菜单内容 */}
+      <div className="t-morph-menu flex flex-col justify-center items-start p-4 space-y-2">
+        <button className="text-sm font-semibold text-fg-1 hover:text-primary">新建提名</button>
+        <button className="text-sm font-semibold text-fg-1 hover:text-primary">查看看板</button>
+        <button className="text-sm font-semibold text-fg-1 hover:text-primary">分享链接</button>
+      </div>
+
+      {/* 初始的加号按钮 (pinned 在右下角) */}
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        className="t-morph-plus"
+        aria-expanded={isOpen ? "true" : "false"}
+      >
+        <Plus size={20} className="text-foreground" />
+      </button>
+    </div>
+  )
+}
+```
+```
+
+---
+
+
+## 动效参数规范
+若需要在开发新模块时定制某一部分动画的全局时长，可以在 [transitions.css](file:///f:/00000000000000000/0962/flarestarter/src/styles/transitions.css) 中对 `:root` 变量进行微调：
+
+```css
+:root {
+  --acc-expand: 250ms;       /* 手风琴展开时长 */
+  --acc-collapse: 250ms;     /* 手风琴收起时长 */
+  --acc-chevron: 250ms;      /* Chevron 旋转形变时长 */
+  --acc-ease: cubic-bezier(0.22, 1, 0.36, 1); /* 最优动画曲线 */
+}
+```
+
+在编写所有包含动效的新路由页面时，请**务必先阅读本文档**，优先选用上述预定义的 21 类 CSS 动效以保证全站视觉体验的极致统一与丝滑！

@@ -34,7 +34,14 @@ export function ThemeToggle({ theme }: { theme: 'light' | 'dark' }) {
       aria-label={t('common.toggleTheme')}
       className="inline-flex h-[38px] w-[38px] items-center justify-center rounded-lg border border-transparent text-fg-2 transition-colors hover:bg-bg-alt hover:text-foreground"
     >
-      {resolved === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+      <span className="t-icon-swap" data-state={resolved === 'dark' ? 'a' : 'b'}>
+        <span className="t-icon" data-icon="a">
+          <Sun size={18} />
+        </span>
+        <span className="t-icon" data-icon="b">
+          <Moon size={18} />
+        </span>
+      </span>
     </button>
   )
 }

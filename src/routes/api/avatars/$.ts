@@ -1,5 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { env } from '@/lib/env'
 import { getAvatar } from '@/features/storage/storage.server'
 
 /**
@@ -14,12 +13,12 @@ const handler = async ({ request }: { request: Request }) => {
   } catch {
     // 畸形百分号编码（如 /%E0%A4%A）→ 404，而不是未捕获的 URIError 500
   }
-  const object = userId ? await getAvatar(env.BUCKET, userId) : null
+  const object = userId ? await getAvatar(userId) : null
   if (!object) return new Response('Not found', { status: 404 })
 
   const headers = new Headers()
-  if (object.httpMetadata?.contentType) headers.set('Content-Type', object.httpMetadata.contentType)
-  headers.set('ETag', object.httpEtag)
+  headers.set('Content-Type', object.contentType)
+  headers.set('ETag', object.etag)
   headers.set('Cache-Control', 'public, max-age=60') // short: url is cache-busted on re-upload
   return new Response(object.body, { headers })
 }

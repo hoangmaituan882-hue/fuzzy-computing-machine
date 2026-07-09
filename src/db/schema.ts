@@ -5,3 +5,5 @@ export * from '@/features/billing/billing.schema'
 export * from './tables/waitlist'
 export * from '@/features/sponsor/sponsor.schema'
 export * from '@/features/feedback/feedback.schema'
+export * from '@/features/screening/screening.schema'
+

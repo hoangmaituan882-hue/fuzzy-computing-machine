@@ -1,7 +1,29 @@
-import { env } from 'cloudflare:workers'
+export const env = {
+  DATABASE_URL: process.env.DATABASE_URL,
+  DATABASE_POOL_SIZE: process.env.DATABASE_POOL_SIZE,
+  UPLOAD_DIR: process.env.UPLOAD_DIR ?? './uploads',
+  BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET ?? '',
+  BETTER_AUTH_URL: process.env.BETTER_AUTH_URL ?? 'http://localhost:3000',
+  RESEND_API_KEY: process.env.RESEND_API_KEY ?? '',
+  EMAIL_FROM: process.env.EMAIL_FROM ?? '',
+  RESEND_AUDIENCE_ID: process.env.RESEND_AUDIENCE_ID ?? '',
+  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID ?? '',
+  GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET ?? '',
+  GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID ?? '',
+  GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET ?? '',
+  STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY ?? '',
+  STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET ?? '',
+  STRIPE_PRICE_PRO_MONTHLY: process.env.STRIPE_PRICE_PRO_MONTHLY ?? '',
+  STRIPE_PRICE_PRO_YEARLY: process.env.STRIPE_PRICE_PRO_YEARLY ?? '',
+  STRIPE_PRICE_PRO_LIFETIME: process.env.STRIPE_PRICE_PRO_LIFETIME ?? '',
+  ADMIN_EMAILS: process.env.ADMIN_EMAILS ?? '',
+  TURNSTILE_SITE_KEY: process.env.TURNSTILE_SITE_KEY ?? '',
+  TURNSTILE_SECRET_KEY: process.env.TURNSTILE_SECRET_KEY ?? '',
+  CF_ANALYTICS_TOKEN: process.env.CF_ANALYTICS_TOKEN ?? '',
+  SENTRY_DSN: process.env.SENTRY_DSN ?? '',
+  DB: undefined,
+  CACHE: undefined,
+  BUCKET: undefined,
+}
 
-/**
- * 唯一的 Cloudflare bindings 访问入口。
- * 本项目禁止使用 process.env —— 一律从这里取（见 docs/cf-gotchas.md）。
- */
-export { env }
+export type AppEnv = typeof env

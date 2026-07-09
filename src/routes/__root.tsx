@@ -38,17 +38,17 @@ export const Route = createRootRoute({
       const analyticsToken = await getAnalyticsToken()
       return { theme, themeFromCookie, user, analyticsToken }
     } catch {
-      return { theme: 'dark' as const, themeFromCookie: false, user: null, analyticsToken: null }
+      return { theme: 'light' as const, themeFromCookie: false, user: null, analyticsToken: null }
     }
   },
   component: RootComponent,
 })
 
-/* Pre-paint theme resolution for cookie-less visitors: SSR defaults to dark
- * (brand), this flips to light when the OS prefers it — before first paint, so
+/* Pre-paint theme resolution for cookie-less visitors: SSR defaults to light
+ * (brand), this flips to dark when the OS prefers it — before first paint, so
  * there is no flash. It deliberately does NOT write a cookie: visitors keep
  * following their system until they click the toggle (which does write one). */
-const THEME_BOOT_SCRIPT = `(function(){try{if(!/(?:^|;\\s*)theme=/.test(document.cookie)&&matchMedia('(prefers-color-scheme: light)').matches){document.documentElement.classList.replace('dark','light')}}catch(e){}})()`
+const THEME_BOOT_SCRIPT = `(function(){try{if(!/(?:^|;\\s*)theme=/.test(document.cookie)&&matchMedia('(prefers-color-scheme: dark)').matches){document.documentElement.classList.replace('light','dark')}}catch(e){}})()`
 
 function RootComponent() {
   const { theme, analyticsToken } = Route.useLoaderData()
