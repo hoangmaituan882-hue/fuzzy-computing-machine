@@ -57,6 +57,7 @@ const GROUP_VISUALS: GroupVisual[] = [
     gradient: 'linear-gradient(135deg,#0f172a 0%,#2563eb 48%,#38bdf8 100%)',
     pattern: 'radial-gradient(circle at 22% 18%,rgba(255,255,255,.36),transparent 28%), radial-gradient(circle at 82% 76%,rgba(56,189,248,.45),transparent 26%)',
     accentClass: 'text-sky-200',
+    imageUrl: '/screening-heroes/group1.png',
   },
   {
     id: 'group2',
@@ -66,6 +67,7 @@ const GROUP_VISUALS: GroupVisual[] = [
     gradient: 'linear-gradient(135deg,#111827 0%,#4f46e5 44%,#f97316 100%)',
     pattern: 'radial-gradient(circle at 72% 22%,rgba(255,255,255,.35),transparent 26%), radial-gradient(circle at 18% 82%,rgba(249,115,22,.45),transparent 28%)',
     accentClass: 'text-orange-200',
+    imageUrl: '/screening-heroes/group2.png',
   },
   {
     id: 'group3',
@@ -75,6 +77,7 @@ const GROUP_VISUALS: GroupVisual[] = [
     gradient: 'linear-gradient(135deg,#052e2b 0%,#059669 48%,#bef264 100%)',
     pattern: 'radial-gradient(circle at 20% 78%,rgba(255,255,255,.35),transparent 26%), radial-gradient(circle at 84% 18%,rgba(190,242,100,.42),transparent 30%)',
     accentClass: 'text-lime-100',
+    imageUrl: '/screening-heroes/group3.png',
   },
 ]
 
@@ -428,7 +431,7 @@ function CampaignHome() {
       ...visual,
       title: profile?.title ?? visual.title,
       subtitle: profile?.subtitle ?? visual.subtitle,
-      imageUrl: profile?.imageUrl ?? null,
+      imageUrl: profile?.imageUrl ?? visual.imageUrl ?? null,
     }
   })
 
@@ -949,7 +952,7 @@ function CampaignHome() {
       >
         <DialogContent className="max-h-[92vh] w-[calc(100vw-1rem)] max-w-none overflow-y-auto overflow-x-hidden rounded-2xl border border-slate-200 bg-white p-3 text-slate-900 shadow-[0_24px_80px_rgba(15,23,42,0.18)] dark:border-orange-900/45 dark:bg-[#1a100b] dark:text-orange-50 sm:w-[min(96vw,1280px)] sm:rounded-[2rem] sm:p-7">
           <DialogHeader className="mx-auto max-w-3xl px-8 text-center sm:px-0">
-            <DialogTitle className="text-xl font-black tracking-tight text-slate-900 dark:text-slate-100 sm:text-3xl">选择你的群友身份</DialogTitle>
+            <DialogTitle className="text-xl font-black tracking-tight text-slate-900 dark:text-slate-100 sm:text-3xl">选择你的英雄</DialogTitle>
             <DialogDescription className="text-xs text-slate-500 dark:text-slate-400 sm:text-[14.5px]">
               {activeGroup
                 ? '你还没有提名或投票，可以切换一次群身份。'
