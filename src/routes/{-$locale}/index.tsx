@@ -89,6 +89,61 @@ function normalizeNominationTitle(title: string): string {
   return title.trim().toLocaleLowerCase().replace(/\s+/g, '')
 }
 
+function GroupIdentityCard({
+  group,
+  disabled,
+  duplicate,
+  mobile,
+  onSelect,
+}: {
+  group: GroupVisual
+  disabled?: boolean
+  duplicate?: boolean
+  mobile?: boolean
+  onSelect: () => void
+}) {
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      data-screening-group={group.id}
+      aria-hidden={duplicate || undefined}
+      tabIndex={duplicate ? -1 : undefined}
+      onClick={onSelect}
+      className={`flex shrink-0 flex-col justify-end overflow-hidden rounded-lg border border-white/40 bg-white text-left text-white shadow-none outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-wait disabled:opacity-60 ${
+        mobile
+          ? 'h-[clamp(17rem,52dvh,22rem)] w-[clamp(13.5rem,72vw,18rem)] p-4 min-[380px]:p-5'
+          : 'h-[clamp(22rem,58dvh,28rem)] w-[clamp(17rem,25vw,20rem)] p-5 lg:p-7'
+      }`}
+      style={{
+        backgroundImage: group.imageUrl
+          ? `linear-gradient(to top,rgba(2,6,23,.92),rgba(2,6,23,.28) 52%,rgba(2,6,23,.08)), ${group.pattern}, url(${group.imageUrl})`
+          : `${group.pattern}, ${group.gradient}`,
+        backgroundPosition: group.imageUrl ? 'center, center, center 12px' : undefined,
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: group.imageUrl ? '100% 100%, cover, auto 94%' : 'cover',
+      }}
+    >
+      <span className="mb-auto flex w-full items-start justify-between gap-3">
+        <span className={`rounded-full border border-white/35 bg-white/15 py-1 font-black text-white/80 backdrop-blur ${
+          mobile ? 'px-2.5 text-[10px] tracking-[0.18em]' : 'px-3 text-xs tracking-[0.22em]'
+        }`}>
+          {group.tag}
+        </span>
+        <span className={`inline-flex shrink-0 items-center justify-center rounded-md bg-white/20 ${mobile ? 'h-9 w-9' : 'h-11 w-11'}`}>
+          <Gamepad2 className={mobile ? 'h-4 w-4' : 'h-5 w-5'} />
+        </span>
+      </span>
+      <span className={`${mobile ? 'text-xs min-[380px]:text-sm' : 'text-sm lg:text-base'} font-bold ${group.accentClass}`}>
+        {group.subtitle}
+      </span>
+      <span className={`${mobile ? 'text-3xl min-[380px]:text-4xl' : 'text-4xl lg:text-5xl'} mt-2 line-clamp-2 break-words font-black leading-none tracking-tight`}>
+        {group.title}
+      </span>
+    </button>
+  )
+}
+
 function GroupIdentityCarousel({
   groups,
   onChoose,
@@ -99,94 +154,170 @@ function GroupIdentityCarousel({
   disabled?: boolean
 }) {
   const reduceMotion = useReducedMotion()
-  const containerRef = useRef<HTMLDivElement>(null)
-  const trackRef = useRef<HTMLDivElement>(null)
-  const draggedRef = useRef(false)
+  const mobileContainerRef = useRef<HTMLDivElement>(null)
+  const mobileTrackRef = useRef<HTMLDivElement>(null)
+  const desktopContainerRef = useRef<HTMLDivElement>(null)
+  const desktopTrackRef = useRef<HTMLDivElement>(null)
+  const mobileDraggedRef = useRef(false)
+  const desktopDraggedRef = useRef(false)
+  const [viewportWidth, setViewportWidth] = useState(0)
+
+  useEffect(() => {
+    const updateViewportWidth = () => setViewportWidth(window.innerWidth)
+    updateViewportWidth()
+    window.addEventListener('resize', updateViewportWidth)
+    return () => window.removeEventListener('resize', updateViewportWidth)
+  }, [])
 
   useGSAP(
     () => {
-      const track = trackRef.current
-      const container = containerRef.current
-      if (!container || !track) return
-
-      if (reduceMotion || !window.matchMedia('(min-width: 768px)').matches) return
+      const container = mobileContainerRef.current
+      const track = mobileTrackRef.current
+      if (!container || !track || reduceMotion || window.matchMedia('(min-width: 768px)').matches) return
 
       const firstCard = track.children[0] as HTMLElement | undefined
-      if (!firstCard) return
+      const duplicateCard = track.children[groups.length] as HTMLElement | undefined
+      if (!firstCard || !duplicateCard) return
 
-      const cardWidth =
-        firstCard.offsetWidth +
-        parseFloat(getComputedStyle(firstCard).marginRight)
-      const loopWidth = cardWidth * groups.length
-      const speed = 90
+      const loopWidth = duplicateCard.offsetLeft - firstCard.offsetLeft
+      if (loopWidth <= 0) return
 
-      const loop = gsap.to(track, {
-        x: -loopWidth,
-        duration: loopWidth / speed,
-        ease: 'none',
-        repeat: -1,
-      })
+      const loop = gsap.fromTo(
+        container,
+        { scrollLeft: 0 },
+        { scrollLeft: loopWidth, duration: loopWidth / 32, ease: 'none', repeat: -1 },
+      )
+      let startX = 0
+      let startScrollLeft = 0
+      let interacting = false
+      let resumeCall: ReturnType<typeof gsap.delayedCall> | undefined
 
+      const resume = () => {
+        const normalized = gsap.utils.wrap(0, loopWidth, container.scrollLeft)
+        container.scrollLeft = normalized
+        loop.progress(normalized / loopWidth).play()
+      }
+      const scheduleResume = () => {
+        resumeCall?.kill()
+        resumeCall = gsap.delayedCall(1.2, resume)
+      }
+      const onDown = (event: PointerEvent) => {
+        interacting = true
+        startX = event.clientX
+        startScrollLeft = container.scrollLeft
+        mobileDraggedRef.current = false
+        resumeCall?.kill()
+        loop.pause()
+        container.setPointerCapture(event.pointerId)
+      }
+      const onMove = (event: PointerEvent) => {
+        if (!interacting) return
+        const dx = event.clientX - startX
+        if (Math.abs(dx) > 6) mobileDraggedRef.current = true
+        if (event.pointerType === 'mouse') container.scrollLeft = startScrollLeft - dx
+      }
+      const onInteractionEnd = (event: PointerEvent) => {
+        interacting = false
+        if (container.hasPointerCapture(event.pointerId)) container.releasePointerCapture(event.pointerId)
+        scheduleResume()
+      }
+      const onWheel = () => {
+        loop.pause()
+        scheduleResume()
+      }
+      const onFocusIn = () => {
+        resumeCall?.kill()
+        loop.pause()
+      }
+      const onFocusOut = () => scheduleResume()
+
+      container.addEventListener('pointerdown', onDown)
+      container.addEventListener('pointermove', onMove)
+      container.addEventListener('pointerup', onInteractionEnd)
+      container.addEventListener('pointercancel', onInteractionEnd)
+      container.addEventListener('wheel', onWheel, { passive: true })
+      container.addEventListener('focusin', onFocusIn)
+      container.addEventListener('focusout', onFocusOut)
+
+      return () => {
+        resumeCall?.kill()
+        loop.kill()
+        container.removeEventListener('pointerdown', onDown)
+        container.removeEventListener('pointermove', onMove)
+        container.removeEventListener('pointerup', onInteractionEnd)
+        container.removeEventListener('pointercancel', onInteractionEnd)
+        container.removeEventListener('wheel', onWheel)
+        container.removeEventListener('focusin', onFocusIn)
+        container.removeEventListener('focusout', onFocusOut)
+      }
+    },
+    { scope: mobileContainerRef, dependencies: [disabled, groups.length, reduceMotion, viewportWidth] },
+  )
+
+  useGSAP(
+    () => {
+      const container = desktopContainerRef.current
+      const track = desktopTrackRef.current
+      if (!container || !track || reduceMotion || !window.matchMedia('(min-width: 768px)').matches) return
+
+      const firstCard = track.children[0] as HTMLElement | undefined
+      const duplicateCard = track.children[groups.length] as HTMLElement | undefined
+      if (!firstCard || !duplicateCard) return
+
+      const loopWidth = duplicateCard.offsetLeft - firstCard.offsetLeft
+      if (loopWidth <= 0) return
+
+      const speed = 76
+      const loop = gsap.fromTo(track, { x: 0 }, { x: -loopWidth, duration: loopWidth / speed, ease: 'none', repeat: -1 })
       const wrapTime = gsap.utils.wrap(0, loop.duration())
       const pxPerSec = loopWidth / loop.duration()
-
       let dragging = false
       let base = 1
       let targetBase = 1
-      let scroll = 0
+      let wheelBoost = 0
       let startX = 0
       let startTime = 0
 
       const tick = () => {
-        base += (targetBase - base) * 0.1
-        scroll *= 0.9
-        if (Math.abs(scroll) < 0.001) scroll = 0
-        if (!dragging) loop.timeScale(base + scroll)
+        base += (targetBase - base) * 0.12
+        wheelBoost *= 0.9
+        if (Math.abs(wheelBoost) < 0.001) wheelBoost = 0
+        if (!dragging) loop.timeScale(Math.max(0.08, base + wheelBoost))
       }
-      gsap.ticker.add(tick)
-
-      const onEnter = () => (targetBase = 0.15)
+      const onEnter = () => (targetBase = 0.45)
       const onLeave = () => (targetBase = 1)
-
-      const onWheel = (e: WheelEvent) => {
-        e.preventDefault()
-        scroll = gsap.utils.clamp(-60, 1000, scroll + e.deltaY * 0.018)
+      const onWheel = (event: WheelEvent) => {
+        wheelBoost = gsap.utils.clamp(-0.35, 2.5, wheelBoost + event.deltaY * 0.003)
       }
-
-      const onDown = (e: PointerEvent) => {
+      const onDown = (event: PointerEvent) => {
         dragging = true
-        draggedRef.current = false
-        startX = e.clientX
+        desktopDraggedRef.current = false
+        startX = event.clientX
         startTime = loop.time()
         loop.pause()
-        container.setPointerCapture(e.pointerId)
+        container.setPointerCapture(event.pointerId)
         container.style.cursor = 'grabbing'
       }
-
-      const onMove = (e: PointerEvent) => {
+      const onMove = (event: PointerEvent) => {
         if (!dragging) return
-        const dx = e.clientX - startX
-        if (Math.abs(dx) > 6) draggedRef.current = true
+        const dx = event.clientX - startX
+        if (Math.abs(dx) > 6) desktopDraggedRef.current = true
         loop.time(wrapTime(startTime - dx / pxPerSec))
       }
-
-      const onUp = (e: PointerEvent) => {
+      const onUp = (event: PointerEvent) => {
         if (!dragging) return
         dragging = false
         loop.play()
-        if (container.hasPointerCapture(e.pointerId)) {
-          container.releasePointerCapture(e.pointerId)
-        }
+        if (container.hasPointerCapture(event.pointerId)) container.releasePointerCapture(event.pointerId)
         container.style.cursor = ''
-        if (draggedRef.current || disabled) return
-
       }
 
+      gsap.ticker.add(tick)
       container.addEventListener('mouseenter', onEnter)
       container.addEventListener('mouseleave', onLeave)
       container.addEventListener('focusin', onEnter)
       container.addEventListener('focusout', onLeave)
-      container.addEventListener('wheel', onWheel, { passive: false })
+      container.addEventListener('wheel', onWheel, { passive: true })
       container.addEventListener('pointerdown', onDown)
       container.addEventListener('pointermove', onMove)
       container.addEventListener('pointerup', onUp)
@@ -195,103 +326,76 @@ function GroupIdentityCarousel({
       return () => {
         gsap.ticker.remove(tick)
         loop.kill()
-        container.removeEventListener('wheel', onWheel)
         container.removeEventListener('mouseenter', onEnter)
         container.removeEventListener('mouseleave', onLeave)
         container.removeEventListener('focusin', onEnter)
         container.removeEventListener('focusout', onLeave)
+        container.removeEventListener('wheel', onWheel)
         container.removeEventListener('pointerdown', onDown)
         container.removeEventListener('pointermove', onMove)
         container.removeEventListener('pointerup', onUp)
         container.removeEventListener('pointercancel', onUp)
       }
     },
-    { scope: containerRef, dependencies: [disabled, groups.length, onChoose, reduceMotion] },
+    { scope: desktopContainerRef, dependencies: [disabled, groups.length, reduceMotion, viewportWidth] },
   )
 
+  const mobileGroups = reduceMotion ? groups : [...groups, ...groups]
+  const desktopGroups = reduceMotion ? groups : [...groups, ...groups]
+
   return (
-    <div className="w-full px-0 py-5 md:px-4">
+    <div className="w-full py-3 sm:py-5 md:px-4">
       <div
+        ref={mobileContainerRef}
         className="w-full select-none overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:hidden"
         style={{
-          maskImage: 'linear-gradient(to right, black 94%, transparent)',
-          WebkitMaskImage: 'linear-gradient(to right, black 94%, transparent)',
+          maskImage: 'linear-gradient(to right, transparent, black 4%, black 94%, transparent)',
+          WebkitMaskImage: 'linear-gradient(to right, transparent, black 4%, black 94%, transparent)',
         }}
       >
-        <div className="flex w-max snap-x snap-mandatory gap-3 px-1 pb-2">
-          {groups.map((group, index) => (
-            <button
+        <div ref={mobileTrackRef} className={`flex w-max gap-3 px-4 pb-1 ${reduceMotion ? 'snap-x snap-mandatory' : '[will-change:scroll-position]'}`}>
+          {mobileGroups.map((group, index) => (
+            <GroupIdentityCard
               key={`${group.id}-${index}`}
-              type="button"
+              group={group}
               disabled={disabled}
-              data-screening-group={group.id}
-              onClick={() => {
+              duplicate={!reduceMotion && index >= groups.length}
+              mobile
+              onSelect={() => {
+                if (mobileDraggedRef.current) {
+                  mobileDraggedRef.current = false
+                  return
+                }
                 if (!disabled) onChoose(group.id)
               }}
-              className="flex h-[22rem] w-[min(78vw,18rem)] shrink-0 snap-center flex-col justify-end overflow-hidden rounded-lg border border-white/40 bg-white p-5 text-left text-white shadow-none outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-wait disabled:opacity-60"
-              style={{
-                backgroundImage: group.imageUrl
-                  ? `linear-gradient(to top,rgba(2,6,23,.92),rgba(2,6,23,.28) 52%,rgba(2,6,23,.08)), ${group.pattern}, url(${group.imageUrl})`
-                  : `${group.pattern}, ${group.gradient}`,
-                backgroundPosition: group.imageUrl ? 'center, center, center 12px' : undefined,
-                backgroundRepeat: 'no-repeat',
-                backgroundSize: group.imageUrl ? '100% 100%, cover, auto 94%' : 'cover',
-              }}
-            >
-              <span className="mb-auto flex items-start justify-between">
-                <span className="rounded-full border border-white/35 bg-white/15 px-2.5 py-1 text-[10px] font-black tracking-[0.18em] text-white/80 backdrop-blur sm:px-3 sm:text-xs sm:tracking-[0.22em]">
-                  {group.tag}
-                </span>
-                <span className="h-9 w-9 rounded-full bg-white/20 sm:h-12 sm:w-12" />
-              </span>
-              <span className={`text-sm font-bold sm:text-base ${group.accentClass}`}>{group.subtitle}</span>
-              <span className="mt-2 block text-4xl font-black leading-none tracking-tight sm:text-5xl">{group.title}</span>
-            </button>
+            />
           ))}
         </div>
       </div>
 
       <div
-        ref={containerRef}
-        className={`hidden w-full select-none md:block ${reduceMotion ? 'overflow-x-auto' : 'cursor-grab touch-none overflow-hidden'}`}
+        ref={desktopContainerRef}
+        className={`hidden w-full select-none md:block ${reduceMotion ? 'overflow-x-auto' : 'cursor-grab touch-pan-y overflow-hidden'}`}
         style={{
-          maskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)',
-          WebkitMaskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)',
+          maskImage: 'linear-gradient(to right, transparent, black 8%, black 92%, transparent)',
+          WebkitMaskImage: 'linear-gradient(to right, transparent, black 8%, black 92%, transparent)',
         }}
       >
-        <div ref={trackRef} className={`flex w-max ${reduceMotion ? 'snap-x snap-mandatory gap-7 px-1 pb-2' : 'will-change-transform'}`}>
-          {(reduceMotion ? groups : [...groups, ...groups]).map((group, index) => (
-            <button
+        <div ref={desktopTrackRef} className={`flex w-max gap-5 pb-1 lg:gap-7 ${reduceMotion ? 'snap-x snap-mandatory px-1' : 'will-change-transform'}`}>
+          {desktopGroups.map((group, index) => (
+            <GroupIdentityCard
               key={`${group.id}-${index}`}
-              type="button"
+              group={group}
               disabled={disabled}
-              data-screening-group={group.id}
-              onClick={() => {
-                if (draggedRef.current) {
-                  draggedRef.current = false
+              duplicate={!reduceMotion && index >= groups.length}
+              onSelect={() => {
+                if (desktopDraggedRef.current) {
+                  desktopDraggedRef.current = false
                   return
                 }
                 if (!disabled) onChoose(group.id)
               }}
-              className={`flex h-[28rem] w-[20rem] shrink-0 snap-center flex-col justify-end overflow-hidden rounded-lg border border-white/40 bg-white p-7 text-left text-white shadow-none outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-wait disabled:opacity-60 ${reduceMotion ? '' : 'mr-7'}`}
-              style={{
-                backgroundImage: group.imageUrl
-                  ? `linear-gradient(to top,rgba(2,6,23,.92),rgba(2,6,23,.28) 52%,rgba(2,6,23,.08)), ${group.pattern}, url(${group.imageUrl})`
-                  : `${group.pattern}, ${group.gradient}`,
-                backgroundPosition: group.imageUrl ? 'center, center, center 12px' : undefined,
-                backgroundRepeat: 'no-repeat',
-                backgroundSize: group.imageUrl ? '100% 100%, cover, auto 94%' : 'cover',
-              }}
-            >
-              <span className="mb-auto flex items-start justify-between">
-                <span className="rounded-full border border-white/35 bg-white/15 px-3 py-1 text-xs font-black tracking-[0.22em] text-white/80 backdrop-blur">
-                  {group.tag}
-                </span>
-                <span className="h-12 w-12 rounded-full bg-white/20" />
-              </span>
-              <span className={`text-base font-bold ${group.accentClass}`}>{group.subtitle}</span>
-              <span className="mt-2 block text-5xl font-black leading-none tracking-tight">{group.title}</span>
-            </button>
+            />
           ))}
         </div>
       </div>
@@ -705,9 +809,9 @@ function CampaignHome() {
           if (activeGroup) setGroupSwitcherOpen(open)
         }}
       >
-        <DialogContent className="max-h-[92vh] w-[calc(100vw-1rem)] max-w-none overflow-y-auto overflow-x-hidden rounded-2xl border border-slate-200 bg-white p-3 text-slate-900 shadow-[0_24px_80px_rgba(15,23,42,0.18)] dark:border-orange-900/45 dark:bg-[#1a100b] dark:text-orange-50 sm:w-[min(96vw,1280px)] sm:rounded-[2rem] sm:p-7">
-          <DialogHeader className="mx-auto max-w-3xl px-8 text-center sm:px-0">
-            <DialogTitle className="text-xl font-black tracking-tight text-slate-900 dark:text-slate-100 sm:text-3xl">选择你的英雄</DialogTitle>
+        <DialogContent className="max-h-[calc(100dvh-1rem)] w-[calc(100vw-1rem)] max-w-none overflow-y-auto overflow-x-hidden rounded-lg border border-slate-200 bg-white p-3 text-slate-900 shadow-[0_24px_80px_rgba(15,23,42,0.18)] dark:border-orange-900/45 dark:bg-[#1a100b] dark:text-orange-50 sm:max-h-[92vh] sm:w-[min(96vw,1280px)] sm:p-5 lg:p-7">
+          <DialogHeader className="mx-auto max-w-3xl px-6 text-center sm:px-0">
+            <DialogTitle className="text-xl font-black tracking-tight text-slate-900 dark:text-slate-100 sm:text-2xl lg:text-3xl">选择你的英雄</DialogTitle>
             <DialogDescription className="text-xs text-slate-500 dark:text-slate-400 sm:text-[14.5px]">
               {activeGroup
                 ? '你还没有提名或投票，可以切换一次群身份。'

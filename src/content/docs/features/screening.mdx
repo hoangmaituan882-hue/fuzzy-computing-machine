@@ -18,7 +18,7 @@ title: 竞猜与放映
 
 群身份和当前查看群是两个独立状态。修改群身份会回到新身份所属群；仅切换结果标签不会改变身份，并会清空上一个群的搜索条件。服务端仍会校验投票目标所属群，不能依赖前端只读状态做权限控制。
 
-界面复用 shadcn/Radix 基础组件、Lucide 图标、Framer Motion 和 GSAP，没有引入新的 UI 依赖。手机端身份卡使用原生横向滚动和吸附，桌面端使用 GSAP 循环；结果切换和卡片过渡使用 Framer Motion。所有新增动画都遵守 `prefers-reduced-motion`。
+界面复用 shadcn/Radix 基础组件、Lucide 图标、Framer Motion 和 GSAP，没有引入新的 UI 依赖。群身份卡在手机和桌面端均使用 GSAP 无缝循环：手机端保留原生横向触摸滚动，拖动时暂停并在松手后恢复；桌面端支持悬停减速和拖拽。卡片宽高通过响应式边界适配窄屏与低高度视口。结果切换和卡片过渡使用 Framer Motion，所有新增动画都遵守 `prefers-reduced-motion`。
 
 ## 登录用户
 
