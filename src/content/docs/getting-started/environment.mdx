@@ -1,78 +1,26 @@
 ---
 title: 环境变量
-description: 了解 FlareStarter 需要配置哪些环境变量以及它们的用途。
+description: Node.js 与 PostgreSQL 运行环境配置。
 ---
 
-在根目录下有一个 `.dev.vars.example` 文件。当你进行本地开发时，需要将其复制并重命名为 `.dev.vars`。
+本地脚本通过 Node.js 的 `--env-file-if-exists=.env` 读取根目录 `.env`。生产环境由 Docker Compose 或进程管理器注入变量。
 
-<Callout type="info">
-在 Cloudflare Workers 环境下，生产环境的密钥不是写在文件里的，而是需要使用 `wrangler secret put <KEY>` 命令设置到 Cloudflare 面板中。
-</Callout>
+| 变量 | 必需 | 说明 |
+| --- | --- | --- |
+| `DATABASE_URL` | 是 | PostgreSQL 连接串 |
+| `DATABASE_POOL_SIZE` | 否 | postgres.js 最大连接数，默认 10 |
+| `UPLOAD_DIR` | 否 | 上传文件目录，默认 `./uploads` |
+| `BETTER_AUTH_SECRET` | 是 | 至少 32 个字符 |
+| `BETTER_AUTH_URL` | 是 | 应用公网地址；本地为 `http://localhost:3004` |
+| `ADMIN_EMAILS` | 否 | 逗号分隔的管理员邮箱 |
+| `RESEND_API_KEY` / `EMAIL_FROM` | 否 | 邮件发送；留空使用开发降级路径 |
+| `GOOGLE_CLIENT_ID/SECRET` | 否 | Google OAuth，必须成对设置 |
+| `GITHUB_CLIENT_ID/SECRET` | 否 | GitHub OAuth，必须成对设置 |
+| `STRIPE_SECRET_KEY` | 否 | Stripe 服务端密钥 |
+| `STRIPE_WEBHOOK_SECRET` | 条件 | 配置 Stripe 时必须设置 |
+| `STRIPE_PRICE_PRO_*` | 否 | Pro 月付、年付、终身价格 ID |
+| `TURNSTILE_SITE_KEY/SECRET_KEY` | 否 | Turnstile，必须成对设置 |
+| `CF_ANALYTICS_TOKEN` | 否 | Cloudflare Web Analytics 前端 beacon token |
+| `SENTRY_DSN` | 否 | 保留配置；Node 端 Sentry 仍待重新接线 |
 
-## 核心配置
-
-<TypeTable
-  type={{
-    BASE_URL: {
-      description: '应用的基础访问地址',
-      type: 'string',
-      default: 'http://localhost:3000',
-    },
-    BETTER_AUTH_SECRET: {
-      description: 'Better Auth 用于加密 Session 和 Token 的密钥。',
-      type: 'string',
-    },
-  }}
-/>
-
-## 数据库 (D1)
-无需在此处配置数据库账号密码。Cloudflare D1 使用绑定的 Database ID，详情请见 [部署到 Cloudflare](/docs/getting-started/deploy)。
-
-## 邮件 (Resend)
-用于发送登录验证码或营销邮件。
-<TypeTable
-  type={{
-    RESEND_API_KEY: {
-      description: '从 Resend Dashboard 获取的 API 密钥',
-      type: 'string',
-    },
-    EMAIL_FROM: {
-      description: '发件人邮箱，例如 noreply@yourdomain.com',
-      type: 'string',
-    },
-  }}
-/>
-
-## 支付 (Stripe)
-用于计费和订阅。
-<TypeTable
-  type={{
-    STRIPE_SECRET_KEY: {
-      description: 'Stripe 的 Secret Key，用于服务端调用 Stripe API',
-      type: 'string',
-    },
-    STRIPE_WEBHOOK_SECRET: {
-      description: 'Stripe Webhook 签名密钥，用于校验回调真实性',
-      type: 'string',
-    },
-    VITE_STRIPE_PUBLISHABLE_KEY: {
-      description: '暴露给客户端的 Stripe Publishable Key',
-      type: 'string',
-    },
-  }}
-/>
-
-## 安全与防护 (Turnstile)
-替代 Google reCAPTCHA 的无感人机验证。
-<TypeTable
-  type={{
-    TURNSTILE_SECRET_KEY: {
-      description: '用于服务端验证',
-      type: 'string',
-    },
-    TURNSTILE_SITE_KEY: {
-      description: '渲染验证小组件（服务端读取后随页面下发；两个 key 必须成对配置，只配 secret 会让所有表单提交被拒）',
-      type: 'string',
-    },
-  }}
-/>
+环境值统一从 `src/lib/env.ts` 读取。除该文件外，源码禁止直接访问 `process.env`。

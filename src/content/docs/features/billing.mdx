@@ -59,6 +59,6 @@ title: "计费与订阅"
 留空 `STRIPE_*` key 时,计费入口优雅降级(无结账按钮)。测试 webhook 用 Stripe CLI:
 
 ```bash
-stripe listen --forward-to localhost:3000/api/webhooks/stripe
+stripe listen --forward-to localhost:3004/api/webhooks/stripe
 stripe trigger invoice.payment_failed   # 验证站内 banner 出现
 ```

@@ -1,54 +1,12 @@
-name: Deploy
+name: Deployment notice
+
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
+
 jobs:
-  deploy:
+  docker-deployment:
     runs-on: ubuntu-latest
     steps:
-      # secrets 不能直接用于 if，先探测并暴露为 step output，缺失时优雅跳过整个部署，
-      # 避免 fork/未配置凭据的仓库每次 push 到 main 都留下红叉。
-      - name: Check for Cloudflare credentials
-        id: guard
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        run: |
-          if [ -n "$CLOUDFLARE_API_TOKEN" ]; then
-            echo "enabled=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "enabled=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::CLOUDFLARE_API_TOKEN 未配置，跳过部署。如需自动部署，请设置 CLOUDFLARE_API_TOKEN 与 CLOUDFLARE_ACCOUNT_ID secrets。"
-          fi
-      - if: steps.guard.outputs.enabled == 'true'
-        uses: actions/checkout@v5
-      - if: steps.guard.outputs.enabled == 'true'
-        uses: pnpm/action-setup@v5
-      - if: steps.guard.outputs.enabled == 'true'
-        uses: actions/setup-node@v5
-        with:
-          node-version: 22
-          cache: pnpm
-      - if: steps.guard.outputs.enabled == 'true'
-        run: pnpm install --frozen-lockfile
-      # wrangler.jsonc 不入库；从提交的占位模板生成，并注入真实生产资源 id。
-      # 在仓库 Variables 里配置 CF_PROD_D1_ID / CF_PROD_KV_ID（必填）、CF_PROD_DOMAIN（可选）。
-      - if: steps.guard.outputs.enabled == 'true'
-        name: Generate wrangler.jsonc
-        env:
-          CF_PROD_D1_ID: ${{ vars.CF_PROD_D1_ID }}
-          CF_PROD_KV_ID: ${{ vars.CF_PROD_KV_ID }}
-          CF_PROD_DOMAIN: ${{ vars.CF_PROD_DOMAIN }}
-        run: node .github/scripts/gen-wrangler.mjs
-      # @cloudflare/vite-plugin 在 build 时根据 CLOUDFLARE_ENV 把对应环境的 bindings
-      # 烘焙进 dist/server/wrangler.json；deploy 读取该产物，故环境在 build 时选定。
-      - if: steps.guard.outputs.enabled == 'true'
-        run: pnpm build
-        env:
-          CLOUDFLARE_ENV: production
-      - name: Deploy to Cloudflare
-        if: steps.guard.outputs.enabled == 'true'
-        uses: cloudflare/wrangler-action@v4
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: deploy
+      - run: |
+          echo "Automatic Cloudflare deployment is disabled."
+          echo "Deploy the Node.js + PostgreSQL stack with docker-compose.yml; see DEPLOY_1PANEL.md."

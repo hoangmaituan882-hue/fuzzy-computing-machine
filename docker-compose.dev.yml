@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: galgame-postgres-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: galgame
+      POSTGRES_USER: galgame
+      POSTGRES_PASSWORD: galgame_password
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U galgame -d galgame"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    volumes:
+      - postgres-dev-data:/var/lib/postgresql/data
+
+volumes:
+  postgres-dev-data:

@@ -1,65 +1,59 @@
-# Contributing to FlareStarter
-
-Thanks for your interest in improving FlareStarter! This is a starter template, so
-the bar is: changes should keep it **honest** (no mocked/stubbed features), lean,
-and runnable on the Cloudflare free-to-cheap stack.
+# Contributing
 
 ## Prerequisites
 
-- **Node 22+**
-- A Cloudflare account (free tier is enough)
-- `wrangler` ships as a dev dependency — no global install needed
+- Node.js 22+
+- pnpm 10+
+- Docker with Compose
 
 ## Local setup
 
 ```bash
 pnpm install
-cp .dev.vars.example .dev.vars   # everything is optional locally; blanks degrade gracefully
-pnpm db:migrate:local         # create the local D1 schema
-pnpm dev                      # http://localhost:3000
+cp .env.example .env
+docker compose -f docker-compose.dev.yml up -d
+pnpm db:migrate
+pnpm dev
 ```
 
-## The checks (must pass before a PR)
+The application runs at <http://localhost:3004>.
 
-CI runs exactly these — run them locally first:
+## Checks
+
+Run these before submitting a change:
 
 ```bash
-pnpm lint        # eslint
-pnpm typecheck   # tsc --noEmit
-pnpm test        # vitest (node unit + workers/D1 integration)
-pnpm build       # production build
+pnpm lint
+pnpm typecheck
+pnpm test:node
+pnpm build
 ```
 
-## Conventions
+The old Workers/D1 integration suite is still available through `pnpm test:legacy-workers`, but it is not compatible with the current PostgreSQL client. New database tests must use an isolated PostgreSQL database; never use a shared development or production database.
 
-- **Branch** off `main`: `feat/...`, `fix/...`, `docs/...`, `chore/...`.
-- **Commits**: [Conventional Commits](https://www.conventionalcommits.org) (`feat(storage): ...`, `fix(billing): ...`). Keep them scoped and self-describing.
-- **Code style**: match the surrounding file. Features live as self-contained vertical slices under `src/features/<name>/`; never hand-write owner filters — use `scopeFromUser`/`ownedBy`/`withOwner` from `src/db/scope.ts`.
-- **Env access**: only via `src/lib/env.ts` (never `process.env`). New vars go in `wrangler.jsonc` vars, `.dev.vars.example`, and the zod schema in `src/lib/env-validate.ts`.
-- **Tests**: name them `*.node.test.ts` (pure/node pool) or `*.workers.test.ts` (real D1/R2 via miniflare). Add tests for new logic.
-- **Docs**: if you change setup/deploy/behaviour, update the relevant file in `src/content/docs/`.
+## Code conventions
 
-## Database gotcha
+- Keep features in `src/features/<feature>` and route files focused on loading and presentation.
+- Read environment values from `src/lib/env.ts` only.
+- Use Drizzle `pg-core`; export new schema from `src/db/schema.ts`.
+- Generate forward-only SQL migrations and do not modify migrations already recorded in `_app_migrations`.
+- Enforce ownership, authorization, length limits, and state transitions on the server.
+- Add dictionary keys to both English and Chinese dictionaries.
+- Reuse existing UI primitives and motion utilities.
 
-Local D1 state persists under `.wrangler/state`. If you switch between branches with
-**different migrations**, the local DB can drift (a table from another branch lingers
-with the wrong shape). Reset it:
+## Database changes
 
 ```bash
-pnpm db:reset:local   # wipe + re-migrate + re-seed
+pnpm db:generate
+pnpm db:migrate
 ```
 
-## Cloudflare/workerd notes
+Review generated SQL before applying it. For destructive changes, provide an explicit data migration and rollback/backup plan. The migration runner uses file checksums, so changing an applied file is treated as an error.
 
-The runtime is workerd, not Node — some npm packages won't work (e.g. React Email).
-See [`src/content/docs/platform/cf-gotchas.mdx`](src/content/docs/platform/cf-gotchas.mdx) before reaching for a dependency.
+## Commit style
 
-## Reporting bugs / proposing features
+Use scoped Conventional Commits such as `fix(screening): hide participant credentials` or `docs(setup): document postgres workflow`.
 
-Open an issue with repro steps (bugs) or the problem you're solving (features). For
-security issues, **do not** open a public issue — see [`SECURITY.md`](SECURITY.md).
+## Known transition
 
-## License
-
-By contributing, you agree your contributions are licensed under the
-[Apache License 2.0](LICENSE).
+Wrangler, Worker entry, D1 migrations, and Workers tests are retained temporarily as migration references. They are not the target platform for new code. The current production path is documented in [DEPLOY_1PANEL.md](DEPLOY_1PANEL.md).

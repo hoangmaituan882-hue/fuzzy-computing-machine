@@ -2,7 +2,11 @@ import { test, expect, vi } from 'vitest'
 import { validateEnv } from './env-validate'
 
 const SECRET = 'x'.repeat(32)
-const ok = { BETTER_AUTH_SECRET: SECRET, BETTER_AUTH_URL: 'https://app.example.com' }
+const ok = {
+  BETTER_AUTH_SECRET: SECRET,
+  BETTER_AUTH_URL: 'https://app.example.com',
+  DATABASE_URL: 'postgres://app:secret@localhost:5432/app',
+}
 
 test('a minimal valid env has no errors or warnings', () => {
   expect(validateEnv(ok)).toEqual({ errors: [], warnings: [] })
@@ -61,7 +65,13 @@ test('assertEnvOnce keeps throwing on EVERY call while the env is invalid', asyn
 
 test('assertEnvOnce passes and memoizes on a valid env', async () => {
   vi.resetModules()
-  vi.doMock('./env', () => ({ env: { BETTER_AUTH_SECRET: SECRET, BETTER_AUTH_URL: 'https://app.example.com' } }))
+  vi.doMock('./env', () => ({
+    env: {
+      BETTER_AUTH_SECRET: SECRET,
+      BETTER_AUTH_URL: 'https://app.example.com',
+      DATABASE_URL: 'postgres://app:secret@localhost:5432/app',
+    },
+  }))
   const { assertEnvOnce } = await import('./env-validate')
   await expect(assertEnvOnce()).resolves.toBeUndefined()
   await expect(assertEnvOnce()).resolves.toBeUndefined()

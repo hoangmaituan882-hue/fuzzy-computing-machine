@@ -3,10 +3,11 @@ import { redirect } from '@tanstack/react-router'
 import type { PublicScreeningGroupProfile, ScreeningGroup } from './screening.server'
 
 type ScreeningIdentity = {
-  participantId: string
   group: ScreeningGroup
   canSwitch: boolean
 }
+
+type InternalScreeningIdentity = ScreeningIdentity & { participantId: string }
 
 type GroupProfileImageUploadResult =
   | { ok: true; profile: PublicScreeningGroupProfile }
@@ -80,7 +81,7 @@ async function currentParticipantId(): Promise<string | undefined> {
   return id || undefined
 }
 
-async function currentScreeningIdentity(): Promise<ScreeningIdentity | undefined> {
+async function currentScreeningIdentity(): Promise<InternalScreeningIdentity | undefined> {
   const { createDb } = await import('@/db/client')
   const { env } = await import('@/lib/env')
   const { canSwitchScreeningParticipantGroup, getScreeningParticipant, isScreeningGroup } = await import('./screening.server')
@@ -106,7 +107,11 @@ export const getScreeningGroupFn = createServerFn({ method: 'GET' }).handler(asy
   return (await currentScreeningIdentity())?.group
 })
 
-export const getScreeningIdentityFn = createServerFn({ method: 'GET' }).handler(currentScreeningIdentity)
+export const getScreeningIdentityFn = createServerFn({ method: 'GET' }).handler(async (): Promise<ScreeningIdentity | undefined> => {
+  const identity = await currentScreeningIdentity()
+  if (!identity) return undefined
+  return { group: identity.group, canSwitch: identity.canSwitch }
+})
 
 export const listScreeningGroupProfilesFn = createServerFn({ method: 'GET' }).handler(async () => {
   const { createDb } = await import('@/db/client')
@@ -174,14 +179,21 @@ export const setScreeningGroupFn = createServerFn({ method: 'POST' })
   .handler(async ({ data: group }) => {
     const { createDb } = await import('@/db/client')
     const { env } = await import('@/lib/env')
+    const { setCookie } = await import('@tanstack/react-start/server')
     const { ensureScreeningParticipant, isScreeningGroup } = await import('./screening.server')
     if (!isScreeningGroup(group)) throw new Error('请选择有效的群身份。')
 
     const participant = await ensureScreeningParticipant(createDb(env.DB), group, await currentParticipantId())
     if (!isScreeningGroup(participant.groupId)) throw new Error('当前群身份异常，请重新选择群身份后再试。')
     const { canSwitchScreeningParticipantGroup } = await import('./screening.server')
+    setCookie('screening_participant_id', participant.id, {
+      httpOnly: true,
+      maxAge: 60 * 60 * 24 * 365,
+      path: '/',
+      sameSite: 'lax',
+      secure: env.BETTER_AUTH_URL.startsWith('https://'),
+    })
     return {
-      participantId: participant.id,
       group: participant.groupId,
       canSwitch: await canSwitchScreeningParticipantGroup(createDb(env.DB), participant.id),
     } satisfies ScreeningIdentity
@@ -278,6 +290,8 @@ export const searchBangumiFn = createServerFn({ method: 'GET' })
     const { keyword, type = 'game' } = data
     const trimmedKeyword = keyword.trim()
     if (!trimmedKeyword) return []
+    if (trimmedKeyword.length > 100) throw new Error('搜索关键词不能超过 100 个字符。')
+    if (type !== 'anime' && type !== 'game') throw new Error('搜索类型无效。')
 
     const bgmType = type === 'anime' ? 2 : 4
     const cacheKey = bangumiSearchCacheKey(trimmedKeyword, type)

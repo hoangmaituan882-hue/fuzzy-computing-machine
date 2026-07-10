@@ -72,7 +72,11 @@ function toWebRequest(req) {
 
 async function sendWebResponse(res, webResponse) {
   res.statusCode = webResponse.status
-  webResponse.headers.forEach((value, key) => res.setHeader(key, value))
+  webResponse.headers.forEach((value, key) => {
+    if (key !== 'set-cookie') res.setHeader(key, value)
+  })
+  const setCookies = webResponse.headers.getSetCookie()
+  if (setCookies.length > 0) res.setHeader('set-cookie', setCookies)
   if (!webResponse.body) return res.end()
   for await (const chunk of webResponse.body) res.write(chunk)
   res.end()

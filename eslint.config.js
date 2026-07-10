@@ -19,9 +19,15 @@ export default [
           object: 'process',
           property: 'env',
           message:
-            'CF Workers 无 process.env：请用 src/lib/env.ts 的 env。',
+            'Environment access is centralized in src/lib/env.ts; import env from there.',
         },
       ],
+    },
+  },
+  {
+    files: ['src/lib/env.ts'],
+    rules: {
+      'no-restricted-properties': 'off',
     },
   },
   {

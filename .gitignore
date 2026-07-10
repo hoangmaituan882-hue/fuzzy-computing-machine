@@ -13,14 +13,12 @@ __unconfig*
 todos.json
 
 .dev.vars*
-!.dev.vars.example
 !.env.example
-# 生产/staging 密钥文件（wrangler secret bulk 用），绝不入库
+# 旧 Cloudflare 密钥文件仍保持忽略，迁移完成后可删除相关配置。
 .prod.vars
 .staging.vars
 
-# 本地 Wrangler 配置（含真实 D1/KV id、自定义域名）——不入库；
-# 模板参考见提交的 wrangler.example.jsonc，首次 `cp wrangler.example.jsonc wrangler.jsonc`
+# 旧 Wrangler 本地配置可能包含真实资源 ID，绝不入库。
 wrangler.jsonc
 
 # Local-only verification screenshots (not distributed with the template)

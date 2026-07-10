@@ -245,7 +245,12 @@ export async function getScreeningDetails(
   return { screening: screeningInfo, reviews: screeningReviews }
 }
 
-export interface NominationWithVotes extends Nomination {
+export type PublicNomination = Pick<
+  Nomination,
+  'id' | 'screeningId' | 'title' | 'cover' | 'type' | 'nominatedByName' | 'reason' | 'status' | 'createdAt'
+>
+
+export interface NominationWithVotes extends PublicNomination {
   votesCount: number
   hasVoted: boolean
 }
@@ -258,7 +263,6 @@ export async function listNominations(db: DB, currentUserId?: string): Promise<N
       title: nominations.title,
       cover: nominations.cover,
       type: nominations.type,
-      nominatedById: nominations.nominatedById,
       nominatedByName: nominations.nominatedByName,
       reason: nominations.reason,
       status: nominations.status,
@@ -282,10 +286,48 @@ export async function listNominations(db: DB, currentUserId?: string): Promise<N
 
   return rawList.map((item) => ({
     ...item,
-    normalizedTitle: normalizeNominationTitle(item.title),
     votesCount: item.votesCount,
     hasVoted: userVotedIds.has(item.id),
   }))
+}
+
+export const NOMINATION_LIMITS = {
+  title: 120,
+  nickname: 40,
+  reason: 2_000,
+  cover: 2_048,
+} as const
+
+export function validateNominationFields(
+  input: { title: string; cover?: string; reason: string },
+  userName: string,
+): { title: string; cover?: string; reason: string; nickname: string } {
+  const title = input.title.trim()
+  const reason = input.reason.trim()
+  const nickname = userName.trim()
+  const cover = input.cover?.trim() || undefined
+
+  if (!title) throw new Error('游戏名称不能为空。')
+  if (title.length > NOMINATION_LIMITS.title) throw new Error(`游戏名称不能超过 ${NOMINATION_LIMITS.title} 个字符。`)
+  if (!nickname) throw new Error('请填写昵称。')
+  if (nickname.length > NOMINATION_LIMITS.nickname) throw new Error(`昵称不能超过 ${NOMINATION_LIMITS.nickname} 个字符。`)
+  if (!reason) throw new Error('推荐理由不能为空。')
+  if (reason.length > NOMINATION_LIMITS.reason) throw new Error(`推荐理由不能超过 ${NOMINATION_LIMITS.reason} 个字符。`)
+
+  if (cover) {
+    if (cover.length > NOMINATION_LIMITS.cover) throw new Error('封面 URL 过长。')
+    let url: URL
+    try {
+      url = new URL(cover)
+    } catch {
+      throw new Error('封面 URL 格式不正确。')
+    }
+    if (url.protocol !== 'https:' && url.protocol !== 'http:') {
+      throw new Error('封面 URL 只支持 HTTP 或 HTTPS。')
+    }
+  }
+
+  return { title, cover, reason, nickname }
 }
 
 export async function submitNomination(
@@ -295,20 +337,9 @@ export async function submitNomination(
   userName: string,
 ): Promise<string> {
   const userGroup = participantGroup(participant)
-  const title = input.title.trim()
+  const validated = validateNominationFields(input, userName)
+  const { title, cover, reason, nickname } = validated
   const normalizedTitle = normalizeNominationTitle(title)
-  const reason = input.reason.trim()
-  const nickname = userName.trim()
-
-  if (!normalizedTitle) {
-    throw new Error('游戏名称不能为空。')
-  }
-  if (!nickname) {
-    throw new Error('请填写昵称。')
-  }
-  if (!reason) {
-    throw new Error('推荐理由不能为空。')
-  }
 
   const id = `nom-${crypto.randomUUID()}`
   try {
@@ -316,7 +347,7 @@ export async function submitNomination(
       id,
       title,
       normalizedTitle,
-      cover: input.cover?.trim() || null,
+      cover: cover ?? null,
       type: userGroup,
       nominatedById: participant.id,
       nominatedByName: nickname,
@@ -404,15 +435,30 @@ export async function submitReview(
   userId: string,
   userName: string,
 ): Promise<string> {
-  const rating = Math.max(1, Math.min(5, input.rating))
+  if (!Number.isInteger(input.rating) || input.rating < 1 || input.rating > 5) {
+    throw new Error('评分必须是 1 到 5 的整数。')
+  }
+  const comment = input.comment.trim()
+  if (!comment) throw new Error('评价内容不能为空。')
+  if (comment.length > 2_000) throw new Error('评价内容不能超过 2000 个字符。')
+
+  const [screening] = await db
+    .select({ id: screenings.id, status: screenings.status })
+    .from(screenings)
+    .where(eq(screenings.id, input.screeningId))
+    .limit(1)
+  if (!screening || screening.status !== 'completed') {
+    throw new Error('只能评价已经完成的放映。')
+  }
+
   const id = `rev-${crypto.randomUUID()}`
   await db.insert(reviews).values({
     id,
     screeningId: input.screeningId,
     userId,
     userName,
-    rating,
-    comment: input.comment.trim(),
+    rating: input.rating,
+    comment,
     createdAt: new Date(),
   })
   return id

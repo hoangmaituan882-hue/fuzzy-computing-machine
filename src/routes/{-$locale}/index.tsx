@@ -1,7 +1,7 @@
 import { createFileRoute, useRouter, getRouteApi, Link } from '@tanstack/react-router'
 import { useState, useTransition, useEffect, useRef } from 'react'
 import { toast } from 'sonner'
-import { ThumbsUp, Plus, Film, BookOpen, AlertCircle, Trophy, Gamepad2, Search, Settings } from 'lucide-react'
+import { Plus, Film, AlertCircle, Trophy, Gamepad2, Settings, UserRoundCog } from 'lucide-react'
 import { getOrigin } from '@/features/seo/seo.fns'
 import { localeHead } from '@/features/seo/seo'
 import type { Locale } from '@/features/i18n/locale'
@@ -11,10 +11,14 @@ import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
-import { motion } from 'framer-motion'
+import { useReducedMotion } from 'framer-motion'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import { ThemeToggle } from '@/features/theme/theme-toggle'
+import {
+  ScreeningResults,
+  type ScreeningResultGroupId,
+} from '@/features/screening/components/screening-results'
 import {
   listNominationsFn,
   getScreeningIdentityFn,
@@ -29,7 +33,7 @@ import {
 const rootRoute = getRouteApi('__root__')
 gsap.registerPlugin(useGSAP)
 
-type GroupId = 'group1' | 'group2' | 'group3'
+type GroupId = ScreeningResultGroupId
 type BangumiResult = { id: string; title: string; originalTitle?: string; cover?: string; summary?: string; score: number }
 type GroupVisual = {
   id: GroupId
@@ -42,10 +46,10 @@ type GroupVisual = {
   accentClass: string
 }
 
-const SCREENING_GROUPS: Array<{ id: GroupId; label: string; short: string; dot: string }> = [
-  { id: 'group1', label: '船长一群群友', short: '一群', dot: 'bg-primary' },
-  { id: 'group2', label: '船长二群群友', short: '二群', dot: 'bg-indigo-500' },
-  { id: 'group3', label: '船长三群群友', short: '三群', dot: 'bg-emerald-500' },
+const SCREENING_GROUPS: Array<{ id: GroupId; label: string; short: string }> = [
+  { id: 'group1', label: '舰长一群群友', short: '一群' },
+  { id: 'group2', label: '舰长二群群友', short: '二群' },
+  { id: 'group3', label: '舰长三群群友', short: '三群' },
 ]
 
 const GROUP_VISUALS: GroupVisual[] = [
@@ -81,12 +85,6 @@ const GROUP_VISUALS: GroupVisual[] = [
   },
 ]
 
-const PARTICIPANT_COOKIE = 'screening_participant_id'
-
-function writeParticipantCookie(id: string) {
-  document.cookie = `${PARTICIPANT_COOKIE}=${encodeURIComponent(id)}; path=/; max-age=31536000; samesite=lax`
-}
-
 function normalizeNominationTitle(title: string): string {
   return title.trim().toLocaleLowerCase().replace(/\s+/g, '')
 }
@@ -100,6 +98,7 @@ function GroupIdentityCarousel({
   onChoose: (group: GroupId) => void
   disabled?: boolean
 }) {
+  const reduceMotion = useReducedMotion()
   const containerRef = useRef<HTMLDivElement>(null)
   const trackRef = useRef<HTMLDivElement>(null)
   const draggedRef = useRef(false)
@@ -109,6 +108,8 @@ function GroupIdentityCarousel({
       const track = trackRef.current
       const container = containerRef.current
       if (!container || !track) return
+
+      if (reduceMotion || !window.matchMedia('(min-width: 768px)').matches) return
 
       const firstCard = track.children[0] as HTMLElement | undefined
       if (!firstCard) return
@@ -173,16 +174,12 @@ function GroupIdentityCarousel({
         if (!dragging) return
         dragging = false
         loop.play()
-        container.releasePointerCapture(e.pointerId)
+        if (container.hasPointerCapture(e.pointerId)) {
+          container.releasePointerCapture(e.pointerId)
+        }
         container.style.cursor = ''
         if (draggedRef.current || disabled) return
 
-        const target = document.elementFromPoint(e.clientX, e.clientY)
-        const card = target?.closest<HTMLButtonElement>('[data-screening-group]')
-        const groupId = card?.dataset.screeningGroup
-        if (groupId === 'group1' || groupId === 'group2' || groupId === 'group3') {
-          onChoose(groupId)
-        }
       }
 
       container.addEventListener('mouseenter', onEnter)
@@ -209,38 +206,36 @@ function GroupIdentityCarousel({
         container.removeEventListener('pointercancel', onUp)
       }
     },
-    { scope: containerRef, dependencies: [disabled, groups.length, onChoose] },
+    { scope: containerRef, dependencies: [disabled, groups.length, onChoose, reduceMotion] },
   )
 
   return (
     <div className="w-full px-0 py-5 md:px-4">
       <div
-        ref={containerRef}
-        className="w-full cursor-grab touch-none select-none overflow-hidden"
+        className="w-full select-none overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:hidden"
         style={{
-          maskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)',
-          WebkitMaskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)',
+          maskImage: 'linear-gradient(to right, black 94%, transparent)',
+          WebkitMaskImage: 'linear-gradient(to right, black 94%, transparent)',
         }}
       >
-        <div ref={trackRef} className="flex w-max will-change-transform">
-          {[...groups, ...groups].map((group, index) => (
+        <div className="flex w-max snap-x snap-mandatory gap-3 px-1 pb-2">
+          {groups.map((group, index) => (
             <button
               key={`${group.id}-${index}`}
               type="button"
               disabled={disabled}
               data-screening-group={group.id}
-              onKeyDown={(event) => {
-                if (disabled) return
-                if (event.key === 'Enter' || event.key === ' ') {
-                  event.preventDefault()
-                  onChoose(group.id)
-                }
+              onClick={() => {
+                if (!disabled) onChoose(group.id)
               }}
-              className="mr-4 flex h-[22rem] w-[15.5rem] shrink-0 flex-col justify-end overflow-hidden rounded-[1.5rem] border border-white/40 bg-cover bg-center p-5 text-left text-white shadow-none outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-wait disabled:opacity-60 sm:mr-7 sm:h-[31rem] sm:w-[22rem] sm:rounded-[2rem] sm:p-7"
+              className="flex h-[22rem] w-[min(78vw,18rem)] shrink-0 snap-center flex-col justify-end overflow-hidden rounded-lg border border-white/40 bg-white p-5 text-left text-white shadow-none outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-wait disabled:opacity-60"
               style={{
                 backgroundImage: group.imageUrl
                   ? `linear-gradient(to top,rgba(2,6,23,.92),rgba(2,6,23,.28) 52%,rgba(2,6,23,.08)), ${group.pattern}, url(${group.imageUrl})`
                   : `${group.pattern}, ${group.gradient}`,
+                backgroundPosition: group.imageUrl ? 'center, center, center 12px' : undefined,
+                backgroundRepeat: 'no-repeat',
+                backgroundSize: group.imageUrl ? '100% 100%, cover, auto 94%' : 'cover',
               }}
             >
               <span className="mb-auto flex items-start justify-between">
@@ -251,6 +246,51 @@ function GroupIdentityCarousel({
               </span>
               <span className={`text-sm font-bold sm:text-base ${group.accentClass}`}>{group.subtitle}</span>
               <span className="mt-2 block text-4xl font-black leading-none tracking-tight sm:text-5xl">{group.title}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div
+        ref={containerRef}
+        className={`hidden w-full select-none md:block ${reduceMotion ? 'overflow-x-auto' : 'cursor-grab touch-none overflow-hidden'}`}
+        style={{
+          maskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)',
+          WebkitMaskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)',
+        }}
+      >
+        <div ref={trackRef} className={`flex w-max ${reduceMotion ? 'snap-x snap-mandatory gap-7 px-1 pb-2' : 'will-change-transform'}`}>
+          {(reduceMotion ? groups : [...groups, ...groups]).map((group, index) => (
+            <button
+              key={`${group.id}-${index}`}
+              type="button"
+              disabled={disabled}
+              data-screening-group={group.id}
+              onClick={() => {
+                if (draggedRef.current) {
+                  draggedRef.current = false
+                  return
+                }
+                if (!disabled) onChoose(group.id)
+              }}
+              className={`flex h-[28rem] w-[20rem] shrink-0 snap-center flex-col justify-end overflow-hidden rounded-lg border border-white/40 bg-white p-7 text-left text-white shadow-none outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-wait disabled:opacity-60 ${reduceMotion ? '' : 'mr-7'}`}
+              style={{
+                backgroundImage: group.imageUrl
+                  ? `linear-gradient(to top,rgba(2,6,23,.92),rgba(2,6,23,.28) 52%,rgba(2,6,23,.08)), ${group.pattern}, url(${group.imageUrl})`
+                  : `${group.pattern}, ${group.gradient}`,
+                backgroundPosition: group.imageUrl ? 'center, center, center 12px' : undefined,
+                backgroundRepeat: 'no-repeat',
+                backgroundSize: group.imageUrl ? '100% 100%, cover, auto 94%' : 'cover',
+              }}
+            >
+              <span className="mb-auto flex items-start justify-between">
+                <span className="rounded-full border border-white/35 bg-white/15 px-3 py-1 text-xs font-black tracking-[0.22em] text-white/80 backdrop-blur">
+                  {group.tag}
+                </span>
+                <span className="h-12 w-12 rounded-full bg-white/20" />
+              </span>
+              <span className={`text-base font-bold ${group.accentClass}`}>{group.subtitle}</span>
+              <span className="mt-2 block text-5xl font-black leading-none tracking-tight">{group.title}</span>
             </button>
           ))}
         </div>
@@ -278,10 +318,11 @@ function CountdownClock() {
 
     const targetTime = getTargetTime()
 
-    const interval = setInterval(() => {
+    let interval: ReturnType<typeof setInterval> | undefined
+    const updateTimeLeft = () => {
       const diff = targetTime - Date.now()
       if (diff <= 0) {
-        clearInterval(interval)
+        if (interval) clearInterval(interval)
         setTimeLeft({ d: 0, h: 0, m: 0, s: 0 })
       } else {
         const d = Math.floor(diff / (1000 * 60 * 60 * 24))
@@ -290,15 +331,20 @@ function CountdownClock() {
         const s = Math.floor((diff % (1000 * 60)) / 1000)
         setTimeLeft({ d, h, m, s })
       }
-    }, 1000)
+    }
 
-    return () => clearInterval(interval)
+    updateTimeLeft()
+    interval = setInterval(updateTimeLeft, 1000)
+
+    return () => {
+      if (interval) clearInterval(interval)
+    }
   }, [])
 
   return (
     <div className="mx-auto mt-4 flex w-full max-w-sm flex-col items-center justify-center gap-3 rounded-2xl border border-slate-200/80 bg-white/90 px-3 py-3 shadow-[0_14px_40px_rgba(15,23,42,0.06)] backdrop-blur-md dark:border-orange-900/50 dark:bg-[#21140d]/70 sm:inline-flex sm:w-auto sm:max-w-none sm:flex-row sm:px-6 sm:py-2.5">
       <span className="flex items-center gap-1.5 text-center font-sans text-[11px] font-semibold tracking-wide text-slate-500 dark:text-slate-400 sm:text-xs">
-        <span className="h-1.5 w-1.5 rounded-full bg-rose-500 animate-pulse" />
+        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-rose-500 motion-reduce:animate-none" />
         距离周六晚 20:00 截止还剩：
       </span>
       <div className="grid w-full grid-cols-4 gap-1.5 sm:flex sm:w-auto sm:gap-2">
@@ -364,6 +410,7 @@ function CampaignHome() {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [activeGroup, setActiveGroup] = useState<GroupId | undefined>(screeningIdentity?.group)
+  const [viewGroup, setViewGroup] = useState<GroupId>(screeningIdentity?.group ?? 'group1')
   const [groupSwitcherOpen, setGroupSwitcherOpen] = useState(false)
 
   // Nomination dialog state
@@ -383,8 +430,14 @@ function CampaignHome() {
   const searchCacheRef = useRef(new Map<string, BangumiResult[]>())
   const searchRequestSeqRef = useRef(0)
 
-  // 按群归类提名数据
-  useEffect(() => setActiveGroup(screeningIdentity?.group), [screeningIdentity?.group])
+  // 身份变化时默认回到自己的群；之后可在结果区旁观其他群。
+  useEffect(() => {
+    setActiveGroup(screeningIdentity?.group)
+    if (screeningIdentity?.group) {
+      setViewGroup(screeningIdentity.group)
+      setNominationQuery('')
+    }
+  }, [screeningIdentity?.group])
 
   const activeGroupMeta = SCREENING_GROUPS.find((group) => group.id === activeGroup)
   const canSwitchGroup = screeningIdentity?.canSwitch ?? false
@@ -393,38 +446,14 @@ function CampaignHome() {
   const duplicateNomination = normalizedTitle
     ? nominations.find((nom) => normalizeNominationTitle(nom.title) === normalizedTitle)
     : undefined
-  const normalizedQuery = normalizeNominationTitle(nominationQuery)
-  const visibleNominations = normalizedQuery
-    ? nominations.filter((nom) =>
-        normalizeNominationTitle(`${nom.title} ${nom.nominatedByName} ${nom.reason}`).includes(normalizedQuery),
-      )
-    : nominations
-
   function nominationsForGroupFrom(items: typeof nominations, group: GroupId) {
     return items.filter((nom) => nom.type === group || (group === 'group1' && !nom.type.startsWith('group')))
-  }
-
-  function statsForNominations(items: Array<{ votesCount: number }>) {
-    return {
-      nominationsCount: items.length,
-      votesCount: items.reduce((total, nom) => total + nom.votesCount, 0),
-    }
-  }
-
-  function nominationsForGroup(group: GroupId) {
-    return nominationsForGroupFrom(visibleNominations, group)
   }
 
   function nominationGroup(type: string): GroupId {
     return type === 'group2' || type === 'group3' ? type : 'group1'
   }
 
-  const group1Nominations = nominationsForGroup('group1')
-  const group2Nominations = nominationsForGroup('group2')
-  const group3Nominations = nominationsForGroup('group3')
-  const group1Stats = statsForNominations(nominationsForGroupFrom(nominations, 'group1'))
-  const group2Stats = statsForNominations(nominationsForGroupFrom(nominations, 'group2'))
-  const group3Stats = statsForNominations(nominationsForGroupFrom(nominations, 'group3'))
   const groupVisuals = GROUP_VISUALS.map((visual) => {
     const profile = groupProfiles.find((item) => item.groupId === visual.id)
     return {
@@ -434,14 +463,19 @@ function CampaignHome() {
       imageUrl: profile?.imageUrl ?? visual.imageUrl ?? null,
     }
   })
+  const resultGroups = SCREENING_GROUPS.map((group) => ({
+    ...group,
+    subtitle: groupVisuals.find((visual) => visual.id === group.id)?.subtitle ?? '',
+    nominations: nominationsForGroupFrom(nominations, group.id),
+  }))
 
   function chooseGroup(group: GroupId) {
     if (isPending) return
     startTransition(async () => {
       try {
         const identity = await setScreeningGroupFn({ data: group })
-        writeParticipantCookie(identity.participantId)
         setActiveGroup(identity.group)
+        setViewGroup(identity.group)
         setGroupSwitcherOpen(false)
         toast.success(`已记录为${SCREENING_GROUPS.find((item) => item.id === identity.group)?.label ?? '当前群友'}`)
         router.invalidate()
@@ -449,6 +483,11 @@ function CampaignHome() {
         toast.error(err.message || '群身份记录失败，请重试。')
       }
     })
+  }
+
+  function viewResultsForGroup(group: GroupId) {
+    setViewGroup(group)
+    setNominationQuery('')
   }
 
   async function handleSearch() {
@@ -564,208 +603,15 @@ function CampaignHome() {
     })
   }
 
-  function renderCompactCard(nom: any, idx: number) {
-    const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : null
-    const cleanReason = nom.reason.replace(/\[Bangumi 简介\]/g, '').trim()
-
-    function handlePointerMove(e: React.PointerEvent<HTMLDivElement>) {
-      const tilt = e.currentTarget
-      const card = tilt.querySelector(".t-tilt-card") as HTMLDivElement
-      if (!card) return
-      const r = tilt.getBoundingClientRect()
-      const px = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width))
-      const py = Math.min(1, Math.max(0, (e.clientY - r.top) / r.height))
-      const MAX = 12 // subtle tilt
-      tilt.classList.add("is-hover")
-      card.classList.add("is-tilting")
-      card.style.setProperty("--tilt-ry", ((px - 0.5) * MAX).toFixed(2) + "deg")
-      card.style.setProperty("--tilt-rx", ((0.5 - py) * MAX).toFixed(2) + "deg")
-      card.style.setProperty("--tilt-gx", (px * 100).toFixed(1) + "%")
-      card.style.setProperty("--tilt-gy", (py * 100).toFixed(1) + "%")
-    }
-
-    function handlePointerLeave(e: React.PointerEvent<HTMLDivElement>) {
-      const tilt = e.currentTarget
-      const card = tilt.querySelector(".t-tilt-card") as HTMLDivElement
-      if (!card) return
-      tilt.classList.remove("is-hover")
-      card.classList.remove("is-tilting")
-      card.style.setProperty("--tilt-rx", "0deg")
-      card.style.setProperty("--tilt-ry", "0deg")
-    }
-
-    if (idx === 0) {
-      return (
-        <div
-          key={nom.id}
-          className="group/tile t-tilt w-full touch-action-none"
-          onPointerMove={handlePointerMove}
-          onPointerLeave={handlePointerLeave}
-        >
-          <motion.div
-            layout
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className={`t-tilt-card relative overflow-hidden rounded-2xl border bg-white p-2.5 shadow-[0_14px_34px_rgba(15,23,42,0.08)] transition-all duration-300 dark:bg-[#1f130d]/80 dark:shadow-none sm:p-3 ${
-              nom.hasVoted
-                ? 'border-primary/60 shadow-primary/10'
-                : 'border-amber-300/70 hover:border-amber-400 dark:border-amber-500/30 dark:hover:border-amber-400/60'
-            }`}
-          >
-            <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-amber-200/60 to-transparent dark:from-amber-500/15" />
-            <div className="relative flex gap-2.5 sm:gap-3">
-              <div className="h-24 w-16 shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 shadow-sm dark:border-orange-900/40 dark:bg-[#150d09] sm:h-28 sm:w-20">
-                {nom.cover ? (
-                  <img src={nom.cover} className="h-full w-full object-cover" alt="" />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center">
-                    <Film size={20} className="text-slate-400 dark:text-slate-700" />
-                  </div>
-                )}
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="mb-2 flex items-center gap-2">
-                  <span className="rounded-full bg-amber-400 px-2 py-0.5 text-[10px] font-black text-slate-950">
-                    TOP 1
-                  </span>
-                  <span className="font-mono text-[10px] font-bold text-slate-500 dark:text-slate-400">
-                    {nom.votesCount} 票
-                  </span>
-                </div>
-                <h4 className="line-clamp-2 text-[13px] font-black leading-snug text-slate-900 dark:text-white sm:text-sm" title={nom.title}>
-                  {nom.title}
-                </h4>
-                <div className="mt-1 text-[9.5px] font-semibold text-slate-500 dark:text-slate-400 sm:text-[10px]">
-                  发起：<span className="text-slate-700 dark:text-slate-200">{nom.nominatedByName}</span>
-                </div>
-                <p className="mt-2 line-clamp-2 text-[10.5px] leading-relaxed text-slate-600 transition-all duration-300 group-hover/tile:line-clamp-none dark:text-slate-300 sm:text-[11px]">
-                  {cleanReason}
-                </p>
-              </div>
-            </div>
-            <div className="relative mt-3 flex items-end justify-between gap-2 sm:gap-3">
-              <div className="max-h-0 overflow-hidden text-[10px] leading-relaxed text-slate-500 opacity-0 transition-all duration-300 group-hover/tile:max-h-24 group-hover/tile:opacity-100 dark:text-slate-400">
-                悬停展开后显示完整推荐理由，方便快速判断本群第一为什么领先。
-              </div>
-              <motion.button
-                whileHover={{ scale: 1.08 }}
-                whileTap={{ scale: 0.9 }}
-                type="button"
-                disabled={isPending}
-                onClick={() => handleVote(nom.id, nom.hasVoted)}
-                className={`inline-flex h-8 shrink-0 items-center gap-1.5 rounded-xl border px-2.5 text-[11px] font-black transition-all duration-300 sm:h-9 sm:px-3 sm:text-xs ${
-                  nom.hasVoted
-                    ? 'border-primary bg-primary/15 text-primary'
-                    : 'border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300'
-                }`}
-              >
-                <ThumbsUp size={13} className={nom.hasVoted ? 'fill-primary' : ''} />
-                {nom.hasVoted ? '已投' : '投它'}
-              </motion.button>
-            </div>
-            <div className="t-tilt-glare" />
-          </motion.div>
-        </div>
-      )
-    }
-
-    return (
-      <div
-        key={nom.id}
-        className="group/tile t-tilt w-full touch-action-none"
-        onPointerMove={handlePointerMove}
-        onPointerLeave={handlePointerLeave}
-      >
-        <motion.div
-          layout
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          className={`t-tilt-card flex items-center gap-2.5 overflow-hidden rounded-xl border bg-white p-2.5 shadow-[0_10px_24px_rgba(15,23,42,0.04)] transition-all duration-300 dark:bg-[#1f130d]/60 dark:shadow-none sm:gap-3 sm:p-3 ${
-            nom.hasVoted
-              ? 'border-primary/50 bg-primary/5 dark:bg-primary/5'
-              : 'border-slate-200 hover:border-slate-300 dark:border-orange-900/45 dark:hover:border-orange-700/70'
-          }`}
-        >
-          {/* Cover */}
-          <div className="relative flex h-12 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-200 bg-slate-50 dark:border-orange-900/40 dark:bg-[#150d09] sm:h-14 sm:w-11">
-            {nom.cover ? (
-              <img src={nom.cover} className="w-full h-full object-cover" alt="" />
-            ) : (
-              <Film size={14} className="text-slate-400 dark:text-slate-700" />
-            )}
-            {medal && (
-              <div className="absolute -top-1 -left-1.5 text-xs drop-shadow-md select-none">
-                {medal}
-              </div>
-            )}
-          </div>
-
-          {/* Content */}
-          <div className="min-w-0 flex-1 space-y-0.5">
-            <h4 className="text-xs font-bold text-slate-800 dark:text-slate-100 truncate group-hover:text-primary transition-colors" title={nom.title}>
-              {nom.title}
-            </h4>
-            <div className="text-[9.5px] text-slate-500 dark:text-slate-400 truncate">
-              发起: <span className="text-slate-700 dark:text-slate-300">{nom.nominatedByName}</span>
-            </div>
-            <p className="text-[10px] text-slate-505 dark:text-slate-400 line-clamp-1 leading-snug transition-all duration-300 group-hover/tile:line-clamp-none" title={cleanReason}>
-              {cleanReason}
-            </p>
-          </div>
-
-          {/* Action / Vote count */}
-          <div className="flex shrink-0 flex-col items-center gap-1 border-l border-slate-200 pl-2 dark:border-slate-800/80 sm:pl-2.5">
-            <motion.button
-              whileHover={{ scale: 1.15 }}
-              whileTap={{ scale: 0.85 }}
-              type="button"
-              disabled={isPending}
-              onClick={() => handleVote(nom.id, nom.hasVoted)}
-              className={`inline-flex h-7 w-7 items-center justify-center rounded-lg border transition-all duration-300 ${
-                nom.hasVoted
-                  ? 'bg-primary/20 border-primary text-primary shadow-md shadow-primary/10'
-                  : 'border-slate-200 bg-slate-50 text-slate-500 hover:border-slate-300 hover:text-slate-800 dark:border-orange-900/50 dark:bg-[#150d09] dark:text-orange-200/70 dark:hover:border-orange-700 dark:hover:text-orange-100'
-              }`}
-              title={nom.hasVoted ? '取消投票' : '投它一票'}
-            >
-              <ThumbsUp size={11} className={nom.hasVoted ? 'fill-primary' : ''} />
-            </motion.button>
-            <span className="text-[9.5px] font-extrabold text-slate-700 dark:text-slate-200 font-mono">
-              {nom.votesCount} 票
-            </span>
-          </div>
-
-          {/* Glare effect */}
-          <div className="t-tilt-glare" />
-        </motion.div>
-      </div>
-    )
-  }
-
-  function renderEmptyState(groupName: string) {
-    return (
-      <div className="rounded-xl border border-dashed border-slate-200 bg-white p-6 text-center dark:border-orange-900/40 dark:bg-[#1f130d]/40">
-        <BookOpen size={24} className="mx-auto mb-2 text-slate-300 dark:text-orange-800" />
-        <h4 className="text-xs font-bold text-slate-500 dark:text-slate-500">{groupName}暂无猜想</h4>
-        <p className="mt-1 text-[10px] text-slate-500 dark:text-slate-650">点击上方按钮推荐你猜测的游戏！</p>
-      </div>
-    )
-  }
-
   return (
     <div className="relative isolate flex min-h-screen flex-col overflow-x-hidden bg-white text-slate-900 antialiased selection:bg-primary selection:text-white dark:bg-[#120b08] dark:text-orange-50">
-      {/* Mesh Background */}
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-100/80 via-white to-white pointer-events-none dark:from-orange-950/55 dark:via-[#120b08] dark:to-[#080504]" />
-      {/* Radial Background Glow Circle */}
-      <div className="absolute left-1/2 top-[24%] -z-10 h-[260px] w-[260px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-slate-200/50 blur-[90px] pointer-events-none dark:bg-primary/16 sm:h-[350px] sm:w-[350px] sm:blur-[120px]" />
 
       {/* Global Navigation Header */}
       <header className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/90 shadow-[0_8px_30px_rgba(15,23,42,0.04)] backdrop-blur-md dark:border-orange-900/40 dark:bg-[#120b08]/82 dark:shadow-none">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-2 px-3 sm:h-16 sm:px-4">
           <div className="flex min-w-0 items-center gap-2">
-            <Gamepad2 className="h-5 w-5 shrink-0 animate-pulse text-primary sm:h-6 sm:w-6" />
+            <Gamepad2 className="h-5 w-5 shrink-0 animate-pulse text-primary motion-reduce:animate-none sm:h-6 sm:w-6" />
             <span className="truncate bg-gradient-to-r from-primary via-orange-500 to-sky-500 bg-clip-text text-sm font-extrabold tracking-tight text-transparent dark:to-indigo-400 sm:text-lg">
               泛式 Galgame 竞猜
             </span>
@@ -797,9 +643,12 @@ function CampaignHome() {
                 variant="outline"
                 size="sm"
                 onClick={() => setGroupSwitcherOpen(true)}
-                className="h-8 rounded-full border-slate-200 px-3 text-xs font-bold text-slate-600 hover:text-slate-900 dark:border-orange-900/45 dark:text-orange-100/80 dark:hover:text-white"
+                aria-label={`切换群身份，当前为${activeGroupMeta.short}`}
+                className="h-8 gap-1.5 rounded-md border-slate-200 px-2 text-xs font-bold text-slate-600 hover:text-slate-900 dark:border-orange-900/45 dark:text-orange-100/80 dark:hover:text-white sm:px-3"
               >
-                切换
+                <UserRoundCog size={14} />
+                <span className="sm:hidden">{activeGroupMeta.short}身份</span>
+                <span className="hidden sm:inline">切换身份</span>
               </Button>
             )}
             <div className="mx-1 hidden h-4 w-px bg-slate-200 dark:bg-orange-900/45 sm:block" />
@@ -815,8 +664,8 @@ function CampaignHome() {
       <main className="z-10 mx-auto w-full max-w-6xl flex-1 space-y-6 px-3 py-5 sm:px-4 sm:py-8 md:space-y-8">
         {/* Campaign Hero Banner */}
         <section className="mx-auto max-w-2xl space-y-3.5 py-3 text-center sm:py-6">
-          <Badge className="rounded-full border border-slate-200 bg-white px-3 py-1 font-mono text-xs tracking-wider text-primary shadow-[0_10px_28px_rgba(15,23,42,0.06)] dark:border-primary/20 dark:bg-primary/10">
-            🏆 泛式三个舰长群专属竞猜
+          <Badge className="gap-1.5 rounded-md border border-slate-200 bg-white px-3 py-1 font-mono text-xs tracking-wider text-primary shadow-[0_10px_28px_rgba(15,23,42,0.06)] dark:border-primary/20 dark:bg-primary/10">
+            <Trophy size={13} /> 泛式三个舰长群专属竞猜
           </Badge>
           <h1 className="text-2xl font-black leading-tight tracking-tight text-slate-950 dark:bg-gradient-to-b dark:from-white dark:to-slate-300 dark:bg-clip-text dark:text-transparent sm:text-3xl md:text-5xl">
             最最最喜欢你的100个饭团
@@ -837,111 +686,17 @@ function CampaignHome() {
           </div>
         </section>
 
-        {/* Three Columns Results */}
-        <section className="space-y-4">
-          <div className="flex flex-col items-start justify-between gap-2 border-b border-slate-200 pb-3 dark:border-orange-900/45 sm:flex-row sm:items-center">
-            <h2 className="flex items-center gap-2 text-sm font-bold text-slate-800 dark:text-slate-100 sm:text-base">
-              <Trophy className="h-5 w-5 shrink-0 text-amber-500" />
-              <span>三个舰长群提名竞猜预测榜</span>
-            </h2>
-            <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">
-              已提名 {nominations.length} 款游戏
-            </span>
-          </div>
-
-          <div className="relative w-full sm:max-w-md">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <Input
-              value={nominationQuery}
-              onChange={(e) => setNominationQuery(e.target.value)}
-              placeholder="搜索已提名的 Galgame、昵称或理由"
-              className="h-11 rounded-xl border-slate-200 bg-white pl-9 text-sm shadow-[0_10px_30px_rgba(15,23,42,0.04)] dark:border-orange-900/40 dark:bg-[#150d09] sm:h-10"
-            />
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-3 md:gap-6">
-            {/* Column 1: 舰长一群 */}
-            <div className="flex flex-col space-y-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-[0_18px_50px_rgba(15,23,42,0.06)] backdrop-blur dark:border-orange-900/45 dark:bg-[#1a100b]/55 dark:shadow-none md:h-[650px] md:space-y-4 md:p-4">
-              <div className="flex items-center justify-between border-b border-slate-200 pb-2.5 dark:border-orange-900/45">
-                <h3 className="font-extrabold text-slate-700 dark:text-slate-200 flex items-center gap-2 text-xs">
-                  <span className="h-2 w-2 rounded-full bg-primary" />
-                  一群预测榜 (1群)
-                </h3>
-                <Badge className="border border-slate-200 bg-slate-50 px-1.5 py-0 font-mono text-[9px] text-slate-600 dark:border-orange-900/40 dark:bg-[#150d09] dark:text-orange-200/70">
-                  {group1Nominations.length} 款
-                </Badge>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-center dark:border-orange-900/40 dark:bg-[#150d09]/80">
-                  <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400">总提名</div>
-                  <div className="mt-0.5 font-mono text-sm font-black text-slate-900 dark:text-slate-100">{group1Stats.nominationsCount}</div>
-                </div>
-                <div className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-center dark:border-orange-900/40 dark:bg-[#150d09]/80">
-                  <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400">总投票</div>
-                  <div className="mt-0.5 font-mono text-sm font-black text-primary">{group1Stats.votesCount}</div>
-                </div>
-              </div>
-              <div className="space-y-3 md:flex-1 md:overflow-y-auto md:pr-1 md:scrollbar-thin">
-                {group1Nominations.map((nom, idx) => renderCompactCard(nom, idx))}
-                {group1Nominations.length === 0 && renderEmptyState('一群')}
-              </div>
-            </div>
-
-            {/* Column 2: 舰长二群 */}
-            <div className="flex flex-col space-y-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-[0_18px_50px_rgba(15,23,42,0.06)] backdrop-blur dark:border-orange-900/45 dark:bg-[#1a100b]/55 dark:shadow-none md:h-[650px] md:space-y-4 md:p-4">
-              <div className="flex items-center justify-between border-b border-slate-200 pb-2.5 dark:border-orange-900/45">
-                <h3 className="font-extrabold text-slate-700 dark:text-slate-200 flex items-center gap-2 text-xs">
-                  <span className="h-2 w-2 rounded-full bg-indigo-500" />
-                  二群预测榜 (2群)
-                </h3>
-                <Badge className="border border-slate-200 bg-slate-50 px-1.5 py-0 font-mono text-[9px] text-slate-600 dark:border-orange-900/40 dark:bg-[#150d09] dark:text-orange-200/70">
-                  {group2Nominations.length} 款
-                </Badge>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-center dark:border-orange-900/40 dark:bg-[#150d09]/80">
-                  <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400">总提名</div>
-                  <div className="mt-0.5 font-mono text-sm font-black text-slate-900 dark:text-slate-100">{group2Stats.nominationsCount}</div>
-                </div>
-                <div className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-center dark:border-orange-900/40 dark:bg-[#150d09]/80">
-                  <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400">总投票</div>
-                  <div className="mt-0.5 font-mono text-sm font-black text-indigo-500">{group2Stats.votesCount}</div>
-                </div>
-              </div>
-              <div className="space-y-3 md:flex-1 md:overflow-y-auto md:pr-1 md:scrollbar-thin">
-                {group2Nominations.map((nom, idx) => renderCompactCard(nom, idx))}
-                {group2Nominations.length === 0 && renderEmptyState('二群')}
-              </div>
-            </div>
-
-            {/* Column 3: 舰长三群 */}
-            <div className="flex flex-col space-y-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-[0_18px_50px_rgba(15,23,42,0.06)] backdrop-blur dark:border-orange-900/45 dark:bg-[#1a100b]/55 dark:shadow-none md:h-[650px] md:space-y-4 md:p-4">
-              <div className="flex items-center justify-between border-b border-slate-200 pb-2.5 dark:border-orange-900/45">
-                <h3 className="font-extrabold text-slate-700 dark:text-slate-200 flex items-center gap-2 text-xs">
-                  <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                  三群预测榜 (3群)
-                </h3>
-                <Badge className="border border-slate-200 bg-slate-50 px-1.5 py-0 font-mono text-[9px] text-slate-600 dark:border-orange-900/40 dark:bg-[#150d09] dark:text-orange-200/70">
-                  {group3Nominations.length} 款
-                </Badge>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-center dark:border-orange-900/40 dark:bg-[#150d09]/80">
-                  <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400">总提名</div>
-                  <div className="mt-0.5 font-mono text-sm font-black text-slate-900 dark:text-slate-100">{group3Stats.nominationsCount}</div>
-                </div>
-                <div className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-center dark:border-orange-900/40 dark:bg-[#150d09]/80">
-                  <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400">总投票</div>
-                  <div className="mt-0.5 font-mono text-sm font-black text-emerald-500">{group3Stats.votesCount}</div>
-                </div>
-              </div>
-              <div className="space-y-3 md:flex-1 md:overflow-y-auto md:pr-1 md:scrollbar-thin">
-                {group3Nominations.map((nom, idx) => renderCompactCard(nom, idx))}
-                {group3Nominations.length === 0 && renderEmptyState('三群')}
-              </div>
-            </div>
-          </div>
-        </section>
+        <ScreeningResults
+          groups={resultGroups}
+          ownGroup={activeGroup}
+          viewGroup={viewGroup}
+          query={nominationQuery}
+          isPending={isPending}
+          onQueryChange={setNominationQuery}
+          onViewGroup={viewResultsForGroup}
+          onVote={handleVote}
+          onNominate={() => setOpen(true)}
+        />
       </main>
 
       <Dialog
@@ -1016,8 +771,9 @@ function CampaignHome() {
               <div className="flex gap-2">
                 <Input
                   placeholder={searchType === 'game' ? "输入 Galgame，如: 白色相簿" : "输入动漫，如: 芙莉莲"}
-                  value={searchKeyword}
-                  onChange={(e) => setSearchKeyword(e.target.value)}
+                value={searchKeyword}
+                onChange={(e) => setSearchKeyword(e.target.value)}
+                maxLength={100}
                   className="h-9 min-w-0 bg-white text-xs text-slate-900 placeholder:text-slate-400 dark:border-orange-900/45 dark:bg-[#150d09] dark:text-orange-50 dark:placeholder:text-orange-100/35 sm:h-8"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
@@ -1092,6 +848,7 @@ function CampaignHome() {
                 placeholder="用于显示是谁发起了这个猜想"
                 value={nickname}
                 onChange={(e) => setNickname(e.target.value)}
+                maxLength={40}
                 required
                 className="border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 dark:border-orange-900/45 dark:bg-[#150d09] dark:text-orange-50 dark:placeholder:text-orange-100/30"
               />
@@ -1104,6 +861,7 @@ function CampaignHome() {
                 placeholder="例如：白色相簿2"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
+                maxLength={120}
                 required
                 className="border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 dark:border-orange-900/45 dark:bg-[#150d09] dark:text-orange-50 dark:placeholder:text-orange-100/30"
               />
@@ -1118,9 +876,11 @@ function CampaignHome() {
               <Label htmlFor="cover" className="text-slate-700 dark:text-slate-300">游戏封面 URL (可选)</Label>
               <Input
                 id="cover"
+                type="url"
                 placeholder="https://example.com/cover.jpg"
                 value={cover}
                 onChange={(e) => setCover(e.target.value)}
+                maxLength={2048}
                 className="border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 dark:border-orange-900/45 dark:bg-[#150d09] dark:text-orange-50 dark:placeholder:text-orange-100/30"
               />
             </div>
@@ -1132,6 +892,7 @@ function CampaignHome() {
                 placeholder="介绍这款游戏，并分享为什么你觉得它近期会是泛式最喜欢的 Galgame？"
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
+                maxLength={2000}
                 rows={4}
                 required
                 className="border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 dark:border-orange-900/45 dark:bg-[#150d09] dark:text-orange-50 dark:placeholder:text-orange-100/30"

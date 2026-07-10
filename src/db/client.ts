@@ -1,14 +1,15 @@
 import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
 import * as schema from './schema'
+import { env } from '@/lib/env'
 
 let client: postgres.Sql | undefined
 
 function getClient() {
   if (!client) {
-    const url = process.env.DATABASE_URL
+    const url = env.DATABASE_URL
     if (!url) throw new Error('DATABASE_URL is required')
-    client = postgres(url, { max: Number(process.env.DATABASE_POOL_SIZE ?? 10) })
+    client = postgres(url, { max: Number(env.DATABASE_POOL_SIZE ?? 10) })
   }
   return client
 }

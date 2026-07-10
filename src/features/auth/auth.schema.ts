@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, integer, index, boolean, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, integer, bigint, index, boolean, timestamp } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -96,7 +96,7 @@ export const rateLimit = pgTable(
     id: text("id").primaryKey(),
     key: text("key"),
     count: integer("count"),
-    lastRequest: integer("last_request"),
+    lastRequest: bigint("last_request", { mode: "number" }),
   },
   (table) => [index("rateLimit_key_idx").on(table.key)],
 );

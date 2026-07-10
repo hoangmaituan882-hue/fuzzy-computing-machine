@@ -1,10 +1,21 @@
 ---
-title: "基础 Admin（运营后台）"
+title: 管理后台
 ---
 
-- **管理员**由 `ADMIN_EMAILS`（逗号分隔的邮箱）决定：这些邮箱注册/登录即获 `admin` 角色（databaseHook），`requireAdmin` 也以 `ADMIN_EMAILS` 为兜底权威。
-- **入口**：`/admin`（默认语言）/ `/zh/admin`。普通用户访问返回 **404**（不泄露后台存在）。
-- **功能**：用户列表 + 搜索/分页、基础统计（注册数 / 活跃用户 / 订阅概览）、禁用/解禁（被禁用户无法登录）、登录为用户（impersonation，顶部横幅可安全退出）。
-- **配置**：本地在 `.dev.vars` 设 `ADMIN_EMAILS`（dev 另种子一个 admin）；生产 `npx wrangler secret put ADMIN_EMAILS --env production`。
-- 仅 `user_id` 维度，零 tenant；多租户 super admin 属商业版。
-- 基于 Better-Auth admin 插件实现。
+在 `.env` 或生产环境中设置：
+
+```dotenv
+ADMIN_EMAILS=admin@example.com,second@example.com
+```
+
+这些邮箱登录后会同步为管理员。`/{locale?}/admin` 父路由统一执行服务端管理员校验，普通用户不会只靠前端隐藏来隔离。
+
+当前后台包括：
+
+- 用户统计、搜索、角色、封禁和模拟登录
+- 三个群身份卡的标题、说明和图片
+- 候补名单与 CSV
+- 赞助记录
+- 用户反馈治理
+
+竞猜活动本身仍缺少开场、关场、选中提名和完成放映的管理流程，这是下一阶段的核心后台工作。

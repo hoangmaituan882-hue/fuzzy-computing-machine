@@ -11,8 +11,8 @@ import { defineConfig, devices } from '@playwright/test'
  *   npx playwright install chromium     # one-time: download the browser
  *   pnpm e2e                          # runs everything in ./e2e
  *
- * The `webServer` below migrates + seeds the local D1 and boots `pnpm dev`
- * before the tests, and tears it down after. See e2e/README.md.
+ * The `webServer` below migrates PostgreSQL and boots `pnpm dev` before the
+ * tests. A local `.env` and isolated test database are required.
  */
 export default defineConfig({
   testDir: './e2e',
@@ -22,14 +22,14 @@ export default defineConfig({
   workers: 1,
   reporter: [['list']],
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL: 'http://localhost:3004',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: {
-    command: 'pnpm db:migrate:local && pnpm db:seed:local && pnpm dev',
-    url: 'http://localhost:3000/',
+    command: 'pnpm db:migrate && pnpm dev',
+    url: 'http://localhost:3004/',
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
   },

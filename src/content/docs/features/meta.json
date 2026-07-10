@@ -1,6 +1,6 @@
 {
   "title": "功能与集成",
-  "pages": ["database", "auth", "billing", "email", "storage", "waitlist", "feedback", "admin", "i18n", "cronjobs", "ui-components", "transitions", "pixel-perfect", "beui"]
+  "pages": ["screening", "database", "auth", "billing", "email", "storage", "waitlist", "feedback", "admin", "i18n", "cronjobs", "ui-components", "transitions", "pixel-perfect", "beui"]
 
 
 }

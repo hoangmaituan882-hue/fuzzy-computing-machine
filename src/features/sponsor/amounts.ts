@@ -10,7 +10,7 @@ export function validateAmount(cents: unknown): number {
 /** Optional public message: trim, strip control chars, cap at config length. Null when empty. */
 export function validateMessage(input: unknown): string | null {
   if (typeof input !== 'string') return null
-  const cleaned = input.replace(/[\u0000-\u001F\u007F]/g, '').trim()  // eslint-disable-line no-control-regex
+  const cleaned = input.replace(/[\u0000-\u001F\u007F]/g, '').trim()
   if (!cleaned) return null
   return cleaned.slice(0, sponsorConfig.messageMaxLen)
 }

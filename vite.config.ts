@@ -14,6 +14,7 @@ const config = defineConfig({
     devtools(),
     tailwindcss(),
     tanstackStart({
+      server: { entry: './src/server.ts' },
       importProtection: {
         // auth.client.ts is isomorphic (guards window access internally);
         // allow server-side route files to import it.
